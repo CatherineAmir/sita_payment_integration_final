@@ -25,8 +25,8 @@ class account_manager(models.Model):
         ('https://qnbalahli.gateway.mastercard.com/', 'LIVE QNB'),
         ('https://test-api.kashier.io/v3/', 'TEST KASHIER'),
         ('https://api.kashier.io/v3/', 'LIVE KASHIER'),
-        ("",""),
-        ("","")
+        ("https://atfawry.fawrystaging.com/","TEST FAWRY"),
+        ("https://atfawry.com","LIVE FAWRY"),
 
 
     ], default='https://test-nbe.gateway.mastercard.com/api/nvp/version/65', required=False, tracking=True)
