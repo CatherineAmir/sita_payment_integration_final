@@ -4,6 +4,7 @@ from odoo import models, fields, api
 
 
 class account_manager(models.Model):
+    "account manger model"
     _name = 'account_manager'
     _inherit = ["mail.thread"]
     _description = 'Account Manager'
