@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+
+		<record id="res_partner_pay" model="ir.ui.view">
+			<field name="name">res.partner.form</field>
+			<field name="model">res.partner</field>
+			<field name="inherit_id" ref="base.view_partner_form"/>
+			<field name="priority" eval="8"/>
+			<field name="arch" type="xml">
+				<xpath expr="//page[@name='internal_notes']" position="before">
+					<page name="transactions" string="Customer Transactions">
+						<field name="transaction_ids">
+							 <tree string="Transaction"  decoration-bf="state=='not_processed'"
+                      decoration-danger="state=='failed'"   decoration-success="state=='done'">
+                    <field name="name"/>
+
+                    <field name="partner_id"/>
+                      <field name="client_name" invisible="1"/>
+                    <field name="client_mobile"/>
+                    <field name="amount" options="{'widget': 'monetary'}"/>
+
+                    <field name="account_id"/>
+                    <field name="currency_id"/>
+                    <field name="state"/>
+							 </tree>
+
+						</field>
+
+					</page>
+				</xpath>
+
+			</field>
+		</record>
+	</data>
+</odoo>

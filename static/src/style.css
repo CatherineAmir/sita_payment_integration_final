@@ -1,0 +1,52 @@
+:root {
+    --header_bg: #ededed;
+    --footer_bg: #333;
+    --copy_bg: #444444;
+    --white: #fff;
+    --cta_color: #17a2b8;
+}
+
+.logo {
+    max-width: 100px;
+}
+
+.header {
+    background: var(--header_bg);
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 3em;
+    line-height: 90px;
+}
+
+footer {
+    background: var(--footer_bg);
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+footer h3 {
+    text-align: center;
+    color: var(--white);
+    display: block;
+    width: 100%;
+    margin: 20px;
+}
+
+.copy {
+    background: var(--copy_bg);
+    text-align: center;
+    color: var(--white);
+    margin-top: 20px;
+}
+
+.copy a {
+    color: var(--white);
+}
+
+.btn-info {
+    color: var(--white);
+    background-color: var(--cta_color);
+    border-color: var(--cta_color);
+}

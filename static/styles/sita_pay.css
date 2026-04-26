@@ -1,0 +1,102 @@
+.o_main_navbar,
+.btn-primary,.o_main_navbar .o_menu_sections .o_nav_entry, .o_main_navbar .o_menu_sections .dropdown-toggle{
+    /*background-color: #4c4cfc !important;*/
+    /*background-color: #1818c3 !important;*/
+    background-color: #3a92b5 !important;
+}
+.dropdown-header,.o_breadcrumb,.ol_breadcrumb,#a,.fw-bold{
+    color:#3a92b5 !important;
+    font-weight: bold;
+}
+.o_button_icon,.o_state_info{
+     color:#3a92b5 !important;
+}
+.dropdown-item {
+    color:#0b99bc;
+    /*font-weight: bold;*/
+}
+.o_field_x2many_list_row_add{
+    color:#3a92b5;
+}
+.btn-outline-primary,.text-primary{
+    color:#3a92b5;
+}
+
+.btn-outline-primary:hover {
+    color: #FFFFFF;
+    background-color: #3a92b5;
+    border-color: #3a92b9;
+}
+a{
+    color:#3a92b5;
+}
+/*.text-muted{*/
+/*     color: #3a92b5 !important;*/
+
+/*}*/
+
+.btn-secondary{
+    color: #0e6fd3 !important;
+}
+.o-mail-Message-date{
+    color: #489fc3 !important;;
+}
+/*btn-outline-primary*/
+
+.navbar{
+    background-color: #1717a8; !important;
+}
+.navbar-light .navbar-nav .nav-link {
+    color: #90bceb !important;
+}
+
+
+:root {
+  /* Brand */
+  --brand-50:  #ededfc;
+  --brand-100: #d2d2f9;
+  --brand-200: #a6a6f2;
+  --brand-300: #7979ec;
+  --brand-400: #3636e2;
+  --brand-500: #1d1dc9;
+  --brand-600: #1717a8; /* base */
+  --brand-700: #12127d;
+  --brand-800: #0d0d59;
+  --brand-900: #080836;
+  --brand-950: #050524;
+
+  /* Accents (harmonies) */
+  --accent-analogous-1: #175fa8; /* blue→cyan side */
+  --accent-analogous-2: #5f17a8; /* blue→violet side */
+  --accent-complement:  #a8a817; /* yellow-green */
+  --accent-triad-1:     #17a817; /* green */
+  --accent-triad-2:     #a81717; /* red */
+
+  /* Supportive neutrals (cool grays) */
+  --neutral-50:  #f7f8fb;
+  --neutral-100: #eef1f6;
+  --neutral-200: #dbe1ea;
+  --neutral-300: #c1c9d8;
+  --neutral-400: #a3adc2;
+  --neutral-500: #8591a7;
+  --neutral-600: #6a768d;
+  --neutral-700: #515b70;
+  --neutral-800: #3a4353;
+  --neutral-900: #262c37;
+}
+
+/* Quick helpers */
+.text-brand   { color: var(--brand-600); }
+.bg-brand     { background-color: var(--brand-600); }
+.btn-brand {
+  background: var(--brand-600);
+  color: white;
+  border: 1px solid var(--brand-800);
+  padding: .6rem 1rem; border-radius: .6rem;
+}
+.btn-brand:hover { background: var(--brand-700); }
+.badge-compl { background: var(--accent-complement); color: #111; }
+
+#bottom{
+    background-color: #1717a8; !important;
+}

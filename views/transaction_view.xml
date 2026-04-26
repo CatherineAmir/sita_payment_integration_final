@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="sita_transaction_form" model="ir.ui.view">
+            <field name="name">transaction.form</field>
+            <field name="model">transaction</field>
+            <field name="arch" type="xml">
+                <form string="Transaction">
+                    <header>
+                        <button name="create_payment_link" string="Generate Payment Link" type="object"
+                                class="btn btn-primary"
+                                invisible="link_active!=False and payment_link"/>
+
+
+                        <button name="get_order_state" string="Order State" type="object" class="btn btn-primary"/>
+
+<!--                        <button name="refund_transaction" string="Refund" type="object" invisible="state in ['refunded','partially_refunded']" groups="sita_payment_integration.create_refund" class="btn btn-warning"/>-->
+
+
+
+                        <field name="state" widget="statusbar" statusbar_visible="not_processed,done"/>
+                    </header>
+
+                    <sheet>
+
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="created_on" readonly="1"/>
+                                <field name="verified_on" readonly="1"
+                                       invisible="not verified_on"/>
+
+
+                                <field name="failed_on" readonly="1" invisible=" not failed_on"/>
+                                <field name="user_id" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="account_id" required="1" options="{'no_open':1,'no_create':1}"
+                                       domain="[('company_id','=',company_id)]" readonly="link_created"/>
+
+
+                                <field name="company_id" readonly="1"/>
+
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Payment Data">
+                                <field name="payment_subject" readonly="link_created"/>
+                                <field name="currency_id" invisible="0" readonly="link_created"/>
+                                <field name="amount" options="{'widget': 'monetary'}" required="1"
+                                       readonly="link_created"/>
+                                <field name="internal_note"/>
+                            </group>
+                            <group string="Client data">
+                                <field name="bank_name" invisible="1"/>
+                                <field name="reservation_id" readonly="link_created"/>
+                                <field name="client_name" required="1" readonly="link_created"/>
+                                <field name="client_email" widget="email" readonly="link_created" required="bank_name == 'Kashier'"/>
+                                <label for="client_mobile" readonly="link_created"/>
+                                <h2>
+                                    <div>
+                                        <field name="client_mobile" id="client_mobile" required="1" class="oe_inline"
+                                               readonly="link_created"/>
+                                        <button name="send_whatsapp" type="object" class="oe_inline btn-large"
+                                                icon="fa-whatsapp fa-2x " style="color:#008000" title="whatsapp">
+                                            <field name="client_mobile" invisible="1"/>
+                                        </button>
+
+                                    </div>
+                                </h2>
+
+                            </group>
+                        </group>
+                        <group name="link_data" string="Link">
+                            <field name="payment_link" widget="CopyClipboardURL" string="Copy Link"
+                                   options="{'string': 'Copy Link'}" readonly="1"/>
+                            <field name="link_created" readonly="1"/>
+                            <label for="link_validity">link expiration after</label>
+                            <div>
+
+                                <field name="link_validity" id="link_validity" required="1" class="oe_inline"/>
+                                <span class="oe_inline">Hours</span>
+
+                            </div>
+                            <field name="expire_on"/>
+                            <field name="link_active" readonly="1"/>
+
+                        </group>
+                        <notebook>
+                            <page name="session_details" string="Session Details">
+                                <group readonly="1">
+                                    <field name="session_id" readonly="1"/>
+                                    <field name="session_version" readonly="1"/>
+                                    <field name="success_indicator" readonly="1"/>
+                                    <field name="result" readonly="1"/>
+
+                                </group>
+                            </page>
+                            <page name="error" string="Error" invisible="error_cause == '' ">
+                                <group>
+                                    <field name="result" readonly="1"/>
+                                    <field name="error_cause" readonly="1"/>
+                                    <field name="error_explanation" readonly="1"/>
+                                </group>
+
+
+                            </page>
+
+
+                            <page name="payment_details" string="Payment Details">
+                                <group string="Payment Details">
+                                    <field name="payment_state" readonly="1"/>
+                                    <field name="authentication_status" readonly="1"/>
+                                    <field name="amount_charged" readonly="1"/>
+                                    <field name="auth_3d_transaction_id" readonly="1"/>
+                                    <field name="certainty" readonly="1"/>
+                                    <field name="chargeback_amount" readonly="1"/>
+                                    <field name="chargeback_currency" readonly="1"/>
+                                </group>
+                            </page>
+
+                            <page name="refund_details" string="Refund Details"
+                                  invisible="state not in ['refunded','partially_refunded']">
+
+
+                                <group string="Refund Details" readonly="1">
+                                    <field name="order_amount" readonly="1"/>
+                                    <field name="order_chargeback_amount" readonly="1"/>
+                                    <field name="order_last_updated_time" readonly="1"/>
+                                    <field name="last_status" readonly="1"/>
+                                    <field name="order_refunded_amount" readonly="1"/>
+                                    <field name="response_gateway_code" readonly="1"/>
+                                    <field name="refund_result" readonly="1"/>
+
+                                </group>
+
+                            </page>
+                            <field name="bank_name" invisible="1"/>
+                            <page string="Kashier Details" name="kasher_details" invisible="bank_name != 'Kashier'">
+                                <group>
+<!--                                    <field name="customer_email" required="bank_name == 'Kashier'"/>-->
+<!--                                    <field name="customer_reference" required="bank_name == 'Kashier'"/>-->
+                                    <field name="session_url" widget="CopyClipboardURL" readonly="1"/>
+                                    <field name="payment_status" readonly="1"/>
+                                    <field name="kashier_order_id" readonly="1"/>
+                                    <field name="target_transaction_id" readonly="1"/>
+<!--                                    <field name="order_id" readonly="1"/>-->
+                                    <field name="kashier_refund_amount" invisible="1" />
+<!--                                    <field name="kashier_refund_amount_reminder" readonly="1"/>-->
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+
+
+                </form>
+            </field>
+        </record>
+
+        <record id="transaction_list" model="ir.ui.view">
+            <field name="name">transaction.list</field>
+            <field name="model">transaction</field>
+            <field name="arch" type="xml">
+                <list string="Transaction" decoration-info="state=='not_processed'"
+                      decoration-danger="state=='failed'" decoration-success="state=='done'"
+                      decoration-warning="state in ['refunded','partially_refunded']">
+                    <field name="name"/>
+                    <field name="client_name"/>
+                    <field name="client_mobile"/>
+                    <field name="amount" options="{'widget': 'monetary'}"/>
+
+                    <field name="account_id"/>
+                    <field name="currency_id"/>
+                    <field name="state"/>
+                    <field name="link_active" readonly="1"/>
+                    <field name="created_on"/>
+                    <field name="verified_on"/>
+                    <field name="expire_on"/>
+                    <field name="user_id"/>
+                    <field name="company_id"/>
+                    <field name="reservation_id"/>
+                    <field name="payment_link" optional="hide"/>
+                    <field name="payment_state"/>
+                    <field name="authentication_status"/>
+
+                </list>
+            </field>
+        </record>
+
+        <record id="sita_transaction_search_view" model="ir.ui.view">
+            <field name="name">transaction.search</field>
+            <field name="model">transaction</field>
+            <field name="arch" type="xml">
+                <search string="Transaction Search">
+                    <field name="company_id" string="Hotel Name"/>
+                    <field name="name"/>
+                    <field name="reservation_id"/>
+                    <field name="client_mobile"/>
+                    <field name="client_name"/>
+
+                    <group expand="1" string="Group By">
+                        <filter name="created_on" date="created_on" string="Order Date"/>
+                        <filter name="verified_on" date="verified_on" string="Order Verification Date"/>
+                        <filter name="failed_on" date="failed_on" string="Order Failed on Date"/>
+
+                        <filter string="Hotel" name="company" domain="[]"
+                                context="{'group_by':'company_id'}"/>
+                        <filter string="User" name="user" domain="[]"
+                                context="{'group_by':'user_id'}"/>
+
+                        <filter string="Account" name="account" domain="[]"
+                                context="{'group_by':'account_id'}"/>
+                        <filter string="Payment State" name="payment_state" domain="[]"
+                                context="{'group_by':'state'}"/>
+
+                        <filter name="my_transactions" string="My Transaction" domain="[('user_id','=',uid)]"/>
+                        <filter string="Successful Transaction" name="success" domain="[('state','=','done')]"/>
+                        <filter string="Failed  Transaction" name="failed" domain="[('state','=','failed')]"/>
+                        <filter string="Pending Transaction" name="pending" domain="[('state','=','pending')]"/>
+                        <filter string="New Transaction" name="new" domain="[('state','=','not_processed')]"/>
+                        <field name="name"/>
+
+                        <filter name="link_created" string="Link Generated" domain="[('link_created','!=',False)]"/>
+                        <filter name="link_not_created" string="Link Not Generated"
+                                domain="[('link_created','=',False)]"/>
+                        <filter name="link_expired" string="Link Expired" domain="[('link_active','=',False)]"/>
+                        <filter name="link Active" string="Link Active" domain="[('link_active','=',True)]"/>
+                        <filter name="Archived" string="Archived" domain="[('active','=',False)]"/>
+                        <!--                        <filter name="Active" string="Active" domain="[('active','=',True)]"/>-->
+
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="state_graph_view">
+            <field name="name">payment.transaction.graph</field>
+            <field name="model">transaction</field>
+            <field name="arch" type="xml">
+                <graph string="Transaction State" type="pie">
+                    <field name="state"/>
+                    <!--                 <field name="created_on" />-->
+                    <field name="company_id"/>
+
+                </graph>
+            </field>
+
+        </record>
+
+        <record model="ir.ui.view" id="date_graph_view">
+            <field name="name">payment.transaction.graph2</field>
+            <field name="model">transaction</field>
+            <field name="arch" type="xml">
+                <graph string="Transaction Date">
+                    <field name="created_on"/>
+                    <field name="company_id"/>
+
+                </graph>
+            </field>
+
+        </record>
+
+        <record id="action_for_state_graph" model="ir.actions.act_window">
+            <field name="name">By State</field>
+            <field name="res_model">transaction</field>
+
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="state_graph_view"/>
+        </record>
+        <record id="action_for_date_graph" model="ir.actions.act_window">
+            <field name="name">By Date</field>
+            <field name="res_model">transaction</field>
+
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="date_graph_view"/>
+        </record>
+
+
+        <record id="transaction_act_window" model="ir.actions.act_window">
+            <field name="name">Transaction</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">transaction</field>
+
+            <field name="view_mode">list,form,search,graph</field>
+
+        </record>
+
+        <menuitem name="Transactions" id="transaction" parent="payment_integration" action="transaction_act_window"
+                  sequence="90"/>
+
+    </data>
+</odoo>

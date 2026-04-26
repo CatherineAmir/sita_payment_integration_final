@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template name="payment_failed" id="payment_failed">
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+            <!-- Bootstrap CSS -->
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+                  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+                  crossorigin="anonymous"/>
+            <link rel="stylesheet" href="/sita_payment_integration/static/src/style.css"/>
+            <link rel="stylesheet" href="/sita_payment_integration/static/src/xml/page_css.css"/>
+
+
+                <div class="container">
+                    <t t-call="sita_payment_integration.header"/>
+                    <div class="container my-5">
+        <div class="alert alert-danger" role="alert">
+            Your order <t t-esc="order_id.name"/> May be paid before ,or There is a problem to pay for this order please contact your service provider
+        </div>
+    </div>
+
+
+                </div>
+
+            <t t-call="sita_payment_integration.footer"/>
+        </template>
+
+
+    </data>
+</odoo>

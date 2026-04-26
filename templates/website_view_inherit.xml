@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+    <template id="inherit_website_layout" name="website_mbi_inherit" inherit_id="website.footer_custom">
+        <xpath expr="//div[@id='footer']" position="replace">
+
+        </xpath>
+    </template>
+
+
+    <template id="pay_remove_contact_us" name="Remove Contact US" inherit_id="website.template_header_boxed">
+        <xpath expr="//t[@t-call='website.placeholder_header_call_to_action']" position="replace">
+
+        </xpath>
+
+        <!--        <xpath expr="//t[@t-call='website.template_header_mobile']" position="replace">-->
+
+        <!--        </xpath>-->
+    </template>
+
+
+    <template id="pay_remove_contact_us_2" inherit_id="website.header_text_element">
+        <xpath expr="//li[contains(@t-attf-class,'#{_item_class}')]" position="replace">
+
+        </xpath>
+
+    </template>
+
+    <template id="pay_remove_search_box" inherit_id="website.header_search_box">
+        <xpath expr="//li[contains(@t-attf-class,'#{_item_class}')]" position="replace">
+
+        </xpath>
+
+    </template>
+
+    <template id="pay_remove_search_box_contact_us" inherit_id="website.header_call_to_action">
+        <xpath expr="//div[hasclass('container')]" position="replace">
+            <div class="container d-none">
+                <a href="/contactus" class="oe_unremovable btn btn-primary btn_cta">Contact Us</a>
+            </div>
+
+        </xpath>
+
+    </template>
+
+    <template id="pay_remove_search_box_contact_us_link" inherit_id="website.layout">
+        <xpath expr="//div[hasclass('container')]" position="replace">
+            <div class="container d-none">
+                <a href="/contactus" class="oe_unremovable btn btn-primary btn_cta">Contact Us</a>
+            </div>
+
+        </xpath>
+
+    </template>
+
+
+     <template id="pay_remove_search_box_contact_us_link" inherit_id="website.template_header_vertical">
+        <xpath expr="//t[t-call='website.placeholder_header_text_element']" position="replace">
+
+
+        </xpath>
+
+    </template>
+
+
+        <template id="option_header_brand_logo_sita" inherit_id="website.option_header_brand_name" name="Header Brand Logo" active="True">
+        <xpath expr="//a" position="replace">
+             <div style="width:5%;"/>
+            <image  src="/sita_payment_integration/static/src/img/sita.png" class="logo" alt="sita">
+                <div style="width:5%;"/>
+            </image>
+
+
+        </xpath>
+        </template>
+
+
+    <template id="remove_nav_bar" inherit_id="website.template_header_hamburger" name="navbar_nav_removal">
+        <xpath expr="//t[@t-call='website.navbar_toggler']" position="replace">
+
+        </xpath>
+    </template>
+
+    <template id="inherit_footer" name="sita footer" inherit_id="website.layout">
+        <xpath expr="//footer//span[hasclass('o_footer_copyright_name')]" position="replace">
+            <span class="o_footer_copyright_name mr-2">Copyright &amp;copy; SITA-EGYPT</span>
+        </xpath>
+    </template>
+    <template inherit_id="web.brand_promotion_message" name="Sita Promotion Message" id="sita_footer">
+        <xpath expr="//t[@t-set='odoo_logo']" position="replace">
+            <t t-set="sita_logo">
+                <a target="_blank"
+                   t-attf-href="https://sita-eg.com/"
+                   class="badge text-bg-light">
+                    <img alt="Sita"
+                         src="/sita_payment_integration/static/src/img/sita.png"
+                         style="height: 1em; vertical-align: baseline;"/>
+                </a>
+            </t>
+        </xpath>
+
+
+                 <xpath expr="//t[@t-out]" position="replace">
+                <t t-out="final_message % (sita_logo,'')"/>
+
+                </xpath>
+
+
+    </template>
+
+
+
+
+</odoo>

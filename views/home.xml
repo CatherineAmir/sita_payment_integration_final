@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+<!--    <template id="assets_frontend_2" name="website_payment_integration_assets" inherit_id="website.assets_frontend">-->
+<!--          <xpath expr="//head" position="inside">-->
+
+
+
+
+<!--        <script type="text/javascript">-->
+
+<!--        </script>-->
+
+
+<!--        </xpath>-->
+<!--    </template>-->
+   <template id="session_payment" name="session">
+
+
+      <p><t t-esc="session_id"></t></p>
+         <div id="embed-target"> </div>
+      <input type="button" value="Pay with Embedded Page" onclick="Checkout.showEmbeddedPage('#embed-target');" />
+
+<script src="/sita_payment_integration/static/src/nbe_home.js" type="text/javascript"/>
+</template>
+
+
+
+
+
+
+
+
+
+
+</odoo>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="transaction_state_view" model="ir.actions.act_window">
+        <field name="name">transaction_state</field>
+        <field name="res_model">transaction</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="sita_payment_integration.state_graph_view"/>
+    </record>
+		<record id="transaction_date_view" model="ir.actions.act_window">
+        <field name="name">transaction_date</field>
+        <field name="res_model">transaction</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="sita_payment_integration.date_graph_view"/>
+    </record>
+
+
+		<record id="dashboard_form_payment_transaction" model="ir.ui.view">
+        <field name="name">Dashboard Form</field>
+        <field name="model">board.board</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard">
+                <board style="1">
+<!--                   style  separation of the screen -->
+<!--                    2 is for columns -->
+                    <column>
+                        <action
+                            string="Transactions State"
+                            name="%(sita_payment_integration.action_for_state_graph)d"/>
+                        <action
+                            string="Transactions Date"
+                            name="%(sita_payment_integration.action_for_date_graph)d"/>
+                    </column>
+
+                </board>
+            </form>
+        </field>
+    </record>
+
+		<record id="transactions_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">board.board</field>
+        <field name="view_mode">form</field>
+        <field name="usage">menu</field>
+        <field name="view_id" ref="dashboard_form_payment_transaction"/>
+    </record>
+    <menuitem name="Dashboard"  parent="sita_payment_integration.payment_integration"
+        id="dashboard_1" sequence="2" action="transactions_dashboard" groups="sita_payment_integration.dashboards_viewer"/>
+
+
+	</data>
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="sita_payment_integration.Numcard">
+         <div class="col-lg mx-5">
+                <div class="text-center shadow-sm border">
+                    <div class="h1 fw-bold my-2 text-primary" >
+                    <span t-esc="props.total"></span>
+                        </div>
+                    <div class="h3 text-muted">
+                        <span t-esc="props.title"> </span>
+                    </div>
+                    <div class="h1 fw-bold my-2 text-primary" >
+                    <span t-esc="props.amount"> </span>
+                        </div>
+
+                    <div class="h3 text-muted my-2">
+                          <span t-esc="props.subtitle"> </span>
+                    </div>
+                </div>
+            </div>
+
+    </t>
+<!--<t t-esc="props.symbol"/>&ndash;&gt;-->
+</templates>

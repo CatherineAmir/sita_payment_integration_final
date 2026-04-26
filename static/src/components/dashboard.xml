@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="sita_payment_integration.Dashboard">
+    <div class="overflow:auto container-fluid" style="height: 100vh; overflow: auto;">
+
+<!--          /* or calc(100vh - 64px) if you have a top bar */-->
+        <!--&gt;-->
+
+<!--#CCE0DCFF-->
+        <div class="row mx-5 my-3">
+        <div class="col-lg my-3 text-center z-5" style="background-color:#cce0dff;">
+            <div class="h1 p0 text-center" style="color:#3a92b5 !important; " >
+                Dashboard for SITA-PAY
+
+
+            </div>
+             <img class="text-center" t-att-src="'/sita_payment_integration/static/src/img/sita_pay.png'" style="width:300px; height:200px;"  alt="Sita-Pay"/>
+            </div>
+            <div class="row my-5">
+
+
+
+            <div class="col">
+                <label for="select-month">Month</label>
+                <select class="form-select text-primary" name="select-month" t-on-change="(e)=>this.onChangeMonth(e)"
+                        id="select-month" label="Month">
+                    <t t-foreach="this.monthList" t-as="month" t-key="month.number">
+                        <option t-att-value="month.number" t-att-label="month.name"
+                                t-att-selected="this.state.selectedMonth==month.number"
+                        />
+                    </t>
+                   </select>
+            </div>
+            <div class="col">
+                 <label for="select-year">Year</label>
+                <select class="form-select text-primary" name="select-year" t-on-change="(e)=>this.onChangeYear(e)"
+                        id="select-year" label="Year">
+                    <t t-foreach="this.yearList" t-as="year" t-key="year">
+                        <option t-att-value="year" t-att-label="year"
+                                t-att-selected="this.state.selectedYear==year"/>
+                    </t>
+                   </select>
+            </div>
+
+            <div class="col">
+<SelectionFilter data="this.state.currencyList" label="'Currency'" onchange.bind="(e)=>{this._onchangeCurrency(e)}"/>
+        </div>
+            <div class="col">
+            <SelectionFilter data="this.state.hotelList" label="'Hotel'" onchange.bind="(e)=>{this._onchangeHotel(e)}"/>
+        </div>
+                 </div>
+    </div>
+
+        <div class="row my-5">
+            <t t-foreach="this.state.totals" t-as="index" t-key="index.currency_id[0]">
+                <Numcard total="index.currency_id_count.toLocaleString('en-US')" title="'Total Transaction'"
+                         amount="index.amount.toLocaleString('en-US')" subtitle="'Amount in ' + index.currency_id[1]"/>
+
+            </t>
+
+            <t t-foreach="this.state.monthTotals" t-as="index" t-key="index.currency_id[0]">
+                    <Numcard total="index.currency_id_count.toLocaleString('en-US')"
+                             title="'Total Transaction In This Month'" amount="index.amount.toLocaleString('en-US')"
+                             subtitle="'Amount in ' + index.currency_id[1]"/>
+
+                </t>
+            </div>
+
+
+        <div class="row mx-4 my-5">
+            <div id="barchart_material" class="w-100 p-3" style="height: 500px;"></div>
+        </div>
+        <div class="row mx-4 my-5 py-5">
+          <div id="compare_line_chart" class="w-100 p-3" style="height: 500px"></div>
+        </div>
+
+        </div>
+    </t>
+</templates>

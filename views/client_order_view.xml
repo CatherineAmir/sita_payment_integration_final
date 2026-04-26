@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+
+    <template id="client_order" name="order Request">
+
+						<div id ="wrap">
+							<div class ="oe_structure">
+	           			 <t class="container">
+							<table class="table table-borderless table-lg container" >
+  <tbody>
+    <tr>
+
+      <td>Order ID </td>
+
+		<td><t t-esc="order_id"> </t></td>
+
+    </tr>
+    <tr>
+
+		<td>Currency</td>
+
+		<td><t t-esc="currency"> </t></td>
+	</tr>
+	  <tr>
+
+		<td>Amount</td>
+
+		<td><t t-esc="amount"> </t></td>
+	</tr>
+
+
+  </tbody>
+</table>
+
+							 <form t-attf-action="/initiate_session/order_id/#{order_id}" method="post" class="checkout_autoformat" id="form_request">
+	                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><br/>
+	 					<button class="btn btn-primary btn-lg" type="submit">Pay Now</button>
+
+</form>
+						 </t>
+							</div>
+						</div>
+	</template>
+
+</odoo>

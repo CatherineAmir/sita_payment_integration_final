@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		 <record id="transaction_report" model="ir.actions.report">
+                        <field name="name">Transaction Report</field>
+			        <field name="model">transaction</field>
+                        <field name="report_type">qweb-pdf</field>
+                        <field name="report_name">sita_payment_integration.report_transaction_report</field>
+                        <field name="report_file">sita_payment_integration.report_transaction_report</field>
+			            <field name="print_report_name">'%s' % (object.name)</field>
+                        <field name="binding_type">report</field>
+                         <field name="binding_model_id" ref="model_transaction"/>
+                </record>
+
+
+		<template id="report_transaction_report">
+			<t t-call="web.html_container">
+				<t t-foreach="docs" t-as="doc">
+					<t t-call="web.external_layout">
+						<div class="page">
+							<div class="container">
+
+
+								    <table class="table table-bordered mb-0" style="border: 2px solid black;width:100%;" >
+                    <tr>
+                        <th class="table-active text-left float-left" style="height: 100px; width:100%;">
+                             <img t-if="doc.company_id.logo" t-att-src="image_data_uri(doc.company_id.logo)" style="max-height: 40px;" alt="Logo" class="img-thumbnail rounded float-right"/>
+
+                            <strong class="table-active text-left float-left"><t t-esc="doc.company_id.name"/></strong>
+                            <br/>
+                            <br/>
+
+                                    <strong><span class="mx-3">Order ID:</span><t t-esc="doc.name"/></strong>
+
+
+                        </th>
+                    </tr>
+                    <tr>
+
+<!--	                    height: 10rem;-->
+                        <td style="text-align:left; width:100%;">
+
+                            <strong class="mx-3">Guest Name:</strong>
+                            <strong  t-field="doc.client_name"/>
+                            <br/>
+
+                            <strong class="mx-3"> Paid Amount:</strong>
+	                        <strong  t-field="doc.amount" widget="monetary" options="{'currency_field':'currency_id'}"/>
+<!--	                        </strong>-->
+                            <br/>
+
+                             <strong class="mx-3"> Payment State:</strong>
+                            <strong  t-field="doc.state"/>
+                            <br/>
+                            <strong class="mx-3">Reservation Date:</strong>
+                            <strong t-field="doc.created_on"/>
+                            <br/>
+
+
+                            <strong class="mx-3">Validation Date:</strong>
+                            <strong t-field="doc.verified_on"/>
+	                         <br/>
+	                        <t t-if="doc.state=='done'">
+	                         <br/>
+	                         <br/>
+	                         <br/>
+
+	                        <strong class="mx-3">Payment State:</strong>
+                            <strong t-field="doc.payment_state"/>
+                            <br/>
+		                        <strong class="mx-3">Authentication Status:</strong>
+                            <strong t-field="doc.authentication_status"/>
+                            <br/>
+		                        <strong class="mx-3">Amount Charged:</strong>
+                            <strong t-field="doc.amount_charged" widget="monetary" options="{'currency_field':'currency_id'}"/>
+                            <br/>
+		                        <strong class="mx-3">3d Transaction Certainty:</strong>
+                            <strong t-field="doc.auth_3d_transaction_id"/>
+                            <br/>
+		                        <strong class="mx-3">Charge Back Amount:</strong>
+                                <strong t-field="doc.chargeback_amount" widget="monetary" options="{'currency_field':'currency_id'}"></strong>
+
+	                        </t>
+
+                        </td>
+                    </tr>
+
+
+
+
+
+
+                </table>
+
+
+
+
+
+							</div>
+
+
+						</div>
+					</t>
+				</t>
+			</t>
+		</template>
+
+	</data>
+</odoo>

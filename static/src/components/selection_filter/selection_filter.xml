@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="sita_payment_integration.SelectionFilter">
+        <label t-att-for="props.label"><t t-esc="props.label"/></label>
+        <select class="form-select text-primary" t-att-id="props.label" t-on-change="props.onchange">
+            <option value="0" ></option>
+            <t t-foreach="props.data" t-as="data" t-key="data.id">
+                <option t-att-value="data.id">
+        <span t-esc="data.name"/>
+
+        </option>
+            </t>
+
+        </select>
+
+    </t>
+</templates>

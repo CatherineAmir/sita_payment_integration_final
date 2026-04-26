@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="header" name="Header">
+            <div class="row mt-5">
+                    <t t-if="company_id.logo">
+                        <div class="col-6 align-self-end">
+                            <img t-if="company_id.logo" t-att-src="image_data_uri(company_id.logo)" alt="Logo" style="width:100px;height:100px;"/>
+
+                        </div>
+                    </t>
+
+            </div>
+
+
+
+        </template>
+
+
+    </data>
+</odoo>

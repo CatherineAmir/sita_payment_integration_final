@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="home_qnb" name="home QNB">
+
+            <!-- Required meta tags -->
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+            <!-- Bootstrap CSS -->
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+                  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+                  crossorigin="anonymous"/>
+            <link rel="stylesheet" href="/sita_payment_integration/static/src/style.css"/>
+            <link rel="stylesheet" href="/sita_payment_integration/static/src/xml/page_css.css"/>
+            <t t-if="'test' in account.api_url">
+
+                <!-- system -->
+                <script src="https://qnbalahli.test.gateway.mastercard.com/static/checkout/checkout.min.js"
+                        data-error="errorCallback"
+                        data-cancel="cancelCallback"></script>
+            </t>
+            <t t-else="">
+                <script src="https://qnbalahli.gateway.mastercard.com/static/checkout/checkout.min.js"
+                        data-error="errorCallback"
+                        data-cancel="cancelCallback"></script>
+            </t>
+
+            <script type="text/javascript">
+
+                function errorCallback(error) {
+                console.log(JSON.stringify(error));
+                console.log("error in order_id", "'<t t-esc="order_id"/>");
+                }
+
+                function cancelCallback() {
+                console.log('Payment cancelled');
+                }
+
+                Checkout.configure({
+
+                session: {
+                id: '<t t-esc="session_id"/>'
+                }
+
+
+                });
+                console.log("session_id", '<t t-esc="session_id"/>')
+
+
+                function completeCallback() {
+                console.log('Completed the payment');
+                window.location.href = "/success_payment";
+                var url = window.location.href
+                console.log('url', url)
+
+                }
+
+
+            </script>
+
+
+            <div class="container mt-3">
+                <t t-call="sita_payment_integration.header"/>
+                <div class="container">
+                    <h3 class="text-center fs-3 my-2 text-info">
+                        Pay with
+                    </h3>
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-auto">
+                            <img src="/sita_payment_integration/static/src/img/MasterCard Acceptance Sign.png"
+                                 class="rounded float-right" alt="" style="width:50px;height:50px;"/>
+                        </div>
+
+
+                        <div class="col-auto">
+                            <img src="/sita_payment_integration/static/src/img/Visa Acceptance Sign.png"
+                                 class="rounded float-right" alt="" style="width:50px;height:50px;"/>
+                        </div>
+                        <div class="col-auto">
+                            <img src="/sita_payment_integration/static/src/img/meeza_cards_logo.png"
+                                 class="rounded float-right" alt="" style="width:50px;height:50px;"/>
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <div class="row my-4">
+                    <table class="table table-borderless table-lg table-striped">
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    <strong>Client Name</strong>
+                                </td>
+
+
+                                <td>
+                                    <t t-esc="client_name"/>
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <td>
+                                    <strong>Order ID</strong>
+                                </td>
+
+                                <td>
+                                    <t t-esc="order_id"/>
+                                </td>
+
+                            </tr>
+                            <tr>
+
+                                <td>
+                                    <strong>Currency</strong>
+                                </td>
+
+                                <td>
+                                    <t t-esc="currency"/>
+                                </td>
+                            </tr>
+                            <tr>
+
+                                <td>
+                                    <strong>Amount</strong>
+                                </td>
+
+                                <td>
+                                    <t t-esc="amount"/>
+                                </td>
+                            </tr>
+
+
+                        </tbody>
+
+
+                    </table>
+                    <form class="form-check">
+                        <input id="digital_sig" name="digital" type="checkbox" class="form-check-input" required="1"
+                               t-attf-onclick="ToggleAcceptedTerms()"/>
+
+
+                        <a href="#" onclick="termsView()" class="position-relative">
+                            <label for="digital_sig" class="form-check-label d-inline-block" >Accept terms and condition</label>
+                        </a>
+
+
+                        <div class="card d-none " style="z-index:9999 !important" id="terms">
+                            <div class="card-header text-capitalize">
+                                Terms and Conditions
+                            </div>
+                            <div class="card-body my-3">
+                                <h3>
+                                    BEST AVAILABLE RATE
+                                </h3>
+                                <h5 class="mx-2 my-3">
+                                    <strong>
+                                        Payment Term
+                                    </strong>
+
+                                </h5>
+                                <ul class="my-2">
+                                    <li class="mx-3">
+                                        Prepaid
+                                    </li>
+                                </ul>
+
+                                  <h5 class="mx-2 my-3">
+                                    <strong>
+                                       Tax 0% and Service Charge 0% Information:
+                                    </strong>
+
+                                </h5>
+                                <ul class="my-2">
+                                    <li class="mx-3">
+                                        Rates Include 0% Tax
+                                    </li>
+                                </ul>
+                                <h5 class="mx-2 my-3">
+                                    <strong>
+                                       Cancellation &amp; Modification Policy:
+                                    </strong>
+
+                                </h5>
+                                <ul class="my-2">
+                                    <li class="mx-3">
+                                        Room cancellation is prohibited.
+                                    </li>
+                                </ul>
+                                <h5 class="mx-2 my-3">
+                                    <strong>
+                                       Important Notes:
+                                    </strong>
+
+                                </h5>
+                                <ul class="my-2">
+                                    <li class="mx-3">
+                                        Standard Check-In : 3:00 PM
+                                    </li><li class="mx-3">
+                                        Standard Check-Out : 12:00 PM
+                                    </li>
+                                    <li class="mx-3">
+                                        12 years and older will be considered as adults
+                                    </li>
+                                </ul>
+
+                            </div>
+                <div class="card-footer d-flex">
+
+                <button class="btn btn-secondary ms-auto" onclick="closeCard()" >Close</button>
+
+                </div>
+
+                        </div>
+
+
+
+
+                    </form>
+                    <div id="embed-target" class="container"></div>
+
+
+                    <div class="mx-auto">
+                        <input type="button" id="payNowButton" value="PAY NOW" class="btn btn-info btn-lg"
+                               style="visibility:hidden;"
+                               onclick="Checkout.showEmbeddedPage('#embed-target'); this.style.visibility = 'hidden';termsAndConditions=document.getElementById('digital_sig').disabled=true; "
+
+                        />
+                    </div>
+
+                </div>
+            </div>
+            <t t-call="sita_payment_integration.footer"/>
+
+
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+                    crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+                    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+                    crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+                    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+                    crossorigin="anonymous"></script>
+
+
+            <script type="text/javascript" src="/sita_payment_integration/static/src/terms_conditions.js"/>
+
+        </template>
+
+
+    </data>
+</odoo>

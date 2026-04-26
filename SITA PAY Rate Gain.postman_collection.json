@@ -1,0 +1,374 @@
+{
+	"info": {
+		"_postman_id": "224a6e70-68c7-47b3-863a-c53a8e4b1023",
+		"name": "SITA PAY Rate Gain",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15532694"
+	},
+	"item": [
+		{
+			"name": "Get Hotels",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": [
+				{
+					"name": "Get Hotels",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "c2KLkPFrG0GYovKfsoQZxw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sita_pay_api/get/hotels",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sita_pay_api",
+								"get",
+								"hotels"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Server",
+							"value": "Werkzeug/3.0.1 Python/3.12.8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 24 Dec 2025 13:10:03 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "441"
+						},
+						{
+							"key": "Set-Cookie",
+							"value": "session_id=IUB4IS6HUUpQoWymX5r35amP64aS3ImxXtBM5Z_gM2IGNDiAgGuy_2MeukVHYODflW3lJp8MQ_GjXsJLshoG; Expires=Thu, 24 Dec 2026 13:10:03 GMT; Max-Age=604800; HttpOnly; Path=/"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"hotels\": [\n        {\n            \"name\": \"Hotel 2\",\n            \"uuid\": \"MYafPkUweR6CXBT3pyav3A\",\n            \"currencies\": [\n                {\n                    \"name\": \"EGP\",\n                    \"symbol\": \"LE\"\n                }\n            ]\n        },\n        {\n            \"name\": \"Hotel 3\",\n            \"uuid\": \"CYOeoHXO7bPb79sVAT_UZw\",\n            \"currencies\": [\n                {\n                    \"name\": \"EGP\",\n                    \"symbol\": \"LE\"\n                }\n            ]\n        },\n        {\n            \"name\": \"hotel 4\",\n            \"uuid\": \"Zz0oX7mlevRPwuITWCJNDw\",\n            \"currencies\": []\n        },\n        {\n            \"name\": \"Hotel 1\",\n            \"uuid\": \"c8qaKbwbKOV2sbAPEQkOfg\",\n            \"currencies\": [\n                {\n                    \"name\": \"USD\",\n                    \"symbol\": \"$\"\n                },\n                {\n                    \"name\": \"EGP\",\n                    \"symbol\": \"LE\"\n                }\n            ]\n        }\n    ],\n    \"count\": 4\n}"
+				}
+			]
+		},
+		{
+			"name": "Create Transaction",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "c2KLkPFrG0GYovKfsoQZxw",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "transaction_id",
+							"value": "ABC 11223344",
+							"description": "String",
+							"type": "text"
+						},
+						{
+							"key": "hotel_id",
+							"value": "c8qaKbwbKOV2sbAPEQkOfg",
+							"description": "String",
+							"type": "text"
+						},
+						{
+							"key": "currency_id",
+							"value": "USD",
+							"description": "String (ISO FORMAT)",
+							"type": "text"
+						},
+						{
+							"key": "amount_in_currency",
+							"value": "1000",
+							"description": "Float",
+							"type": "text"
+						},
+						{
+							"key": "guest_name",
+							"value": "ALi Ahmed",
+							"description": "String ",
+							"type": "text"
+						},
+						{
+							"key": "guest_mobile",
+							"value": "123344",
+							"description": "optional String",
+							"type": "text"
+						},
+						{
+							"key": "guest_email",
+							"value": "",
+							"description": "optional String",
+							"type": "text"
+						},
+						{
+							"key": "reservtaion_number",
+							"value": "",
+							"description": "optional String",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/sita_pay_api/create/transaction",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"sita_pay_api",
+						"create",
+						"transaction"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Create Trasnaction",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "c2KLkPFrG0GYovKfsoQZxw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "transaction_id",
+									"value": "ABC112233110",
+									"description": "String",
+									"type": "text"
+								},
+								{
+									"key": "hotel_id",
+									"value": "CYOeoHXO7bPb79sVAT_UZw",
+									"description": "String",
+									"type": "text"
+								},
+								{
+									"key": "currency_id",
+									"value": "EGP",
+									"description": "String (ISO FORMAT)",
+									"type": "text"
+								},
+								{
+									"key": "amount_in_currency",
+									"value": "1000",
+									"description": "Float",
+									"type": "text"
+								},
+								{
+									"key": "guest_name",
+									"value": "ALi Ahmed",
+									"description": "String ",
+									"type": "text"
+								},
+								{
+									"key": "guest_mobile",
+									"value": "123344",
+									"description": "optional String",
+									"type": "text"
+								},
+								{
+									"key": "guest_email",
+									"value": "",
+									"description": "optional String",
+									"type": "text"
+								},
+								{
+									"key": "reservation_number",
+									"value": "",
+									"description": "optional String",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/sita_pay_api/create/transaction",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sita_pay_api",
+								"create",
+								"transaction"
+							]
+						}
+					},
+					"status": "ACCEPTED",
+					"code": 202,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Server",
+							"value": "Werkzeug/3.0.1 Python/3.12.8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 24 Dec 2025 13:10:31 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "137"
+						},
+						{
+							"key": "Set-Cookie",
+							"value": "session_id=ik3r98bArbGYvsnHpJ8EGks3wfIsnN2FdSBdZI6Rw5bukoFJMvrc5Xi2pln6ECE3EXuSVWeN4fMP48rCQzk4; Expires=Thu, 24 Dec 2026 13:10:31 GMT; Max-Age=604800; HttpOnly; Path=/"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"success\",\n    \"payment_link\": \"http://localhost:8095/checkout/order-pay/ABC112233110\",\n    \"expire_on\": \"2025-12-24 14:10:31.572022\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Transaction",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "c2KLkPFrG0GYovKfsoQZxw",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/sita_pay_api/get/transaction?hotel_id=c8qaKbwbKOV2sbAPEQkOfg&transaction_id=",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"sita_pay_api",
+						"get",
+						"transaction"
+					],
+					"query": [
+						{
+							"key": "hotel_id",
+							"value": "c8qaKbwbKOV2sbAPEQkOfg"
+						},
+						{
+							"key": "transaction_id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Trasnaction",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "c2KLkPFrG0GYovKfsoQZxw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sita_pay_api/get/transaction?hotel_id=CYOeoHXO7bPb79sVAT_UZw&transaction_id=ABC112233111",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sita_pay_api",
+								"get",
+								"transaction"
+							],
+							"query": [
+								{
+									"key": "hotel_id",
+									"value": "CYOeoHXO7bPb79sVAT_UZw"
+								},
+								{
+									"key": "transaction_id",
+									"value": "ABC112233111"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "",
+					"header": [
+						{
+							"key": "Server",
+							"value": "Werkzeug/3.0.1 Python/3.12.8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 24 Dec 2025 13:05:08 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "369"
+						},
+						{
+							"key": "Set-Cookie",
+							"value": "session_id=38KTyLDIO2FPM06VoC1aucEKWm1rGdy_kCoZuHCZzz3B_EXWQhiLOBweFYVpRV465lAPd3Vv488a9ciArXP2; Expires=Thu, 24 Dec 2026 13:05:08 GMT; Max-Age=604800; HttpOnly; Path=/"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"transaction_id\": \"ABC112233111\",\n    \"hotel_id\": \"Hotel 3\",\n    \"created_at\": \"2025-12-24 13:03:46.454903\",\n    \"payment_link\": \"http://localhost:8095/checkout/order-pay/ABC112233111\",\n    \"expire_on\": \"2025-12-24 14:03:46.454903\",\n    \"guest_name\": \"ALi Ahmed\",\n    \"reservation_number\": \"\",\n    \"amount\": 1000,\n    \"currency\": \"EGP\",\n    \"guest_email\": \"\",\n    \"guest_mobile\": \"123344\",\n    \"status\": \"New\"\n}"
+				}
+			]
+		}
+	]
+}

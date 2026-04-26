@@ -1,0 +1,90 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+
+        <record model="ir.ui.view" id="account_manager_list">
+            <field name="name">account_manager_list</field>
+            <field name="model">account_manager</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name" force_save="1"/>
+                    <field name="company_id"/>
+                    <field name="currency_id"/>
+                    <field name="integration_username"/>
+                    <field name="integration_password" password="1"/>
+                    <field name="api_url" readonly="1"/>
+                    <field name="merchant_id"/>
+                    <field name="merchant_name"/>
+                    <field name="bank_name"/>
+                    <field name="secret_key" invisible="bank_name!='Kashier'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="sita_account_search_view" model="ir.ui.view">
+            <field name="name">account_manager.search</field>
+            <field name="model">account_manager</field>
+            <field name="arch" type="xml">
+                <search string="Transaction Search">
+                    <field name="merchant_id"/>
+                    <field name="merchant_name"/>
+                    <field name="integration_username"/>
+                    <field name="company_id"/>
+
+                </search>
+
+            </field>
+           </record>
+
+
+
+        <record model="ir.ui.view" id="account_manager_form">
+            <field name="name">account_manager_form</field>
+            <field name="model">account_manager</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+
+                        <group>
+                            <field name="company_id"/>
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <field name="integration_username"/>
+                            <field name="integration_password" password="1"/>
+                            <field name="merchant_id"/>
+                            <field name="merchant_name"/>
+                            <field name="bank_name"/>
+                             <field name="secret_key" invisible="bank_name!='Kashier'" password="1"/>
+                            <field name="bank_logo" widget="image"/>
+                            <field name="api_url" readonly="0"/>
+                        </group>
+
+                    </sheet>
+                   <chatter/>
+
+
+                </form>
+            </field>
+        </record>
+
+
+        <!-- actions opening views on models -->
+
+        <record model="ir.actions.act_window" id="account_manager_action_window">
+            <field name="name">Account Manager</field>
+            <field name="res_model">account_manager</field>
+            <field name="view_mode">list,form,search</field>
+        </record>
+
+
+        <menuitem id="payment_integration" name="Sita Payment Integration" sequence="0"/>
+        <!--    <menuitem name="payment Integration" id="payment_integration" />-->
+        <menuitem name="Account manager" id="account_manager_menu" parent="payment_integration"
+                  action="account_manager_action_window" sequence="100"
+                  groups="sita_payment_integration.accounts_viewer"/>
+    </data>
+</odoo>

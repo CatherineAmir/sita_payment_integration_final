@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+<!--        <template id="footer" name="footer">-->
+<!--            <footer class="footer mb-0" style="position: fixed; bottom: 0; left: 0; width: 100%;">-->
+<!--    <div class="container">-->
+<!--        <div class="row">-->
+<!--            <h3>Sponsored by</h3>-->
+<!--        </div>-->
+<!--        <div class="row">-->
+<!--            <div class="col-md-4 col-sm-0"></div>-->
+<!--            <div class="col-md-2 col-sm-6 col firstLogo">-->
+<!--                <t t-if="account.bank_name=='NBE'">-->
+<!--                    <img src="/sita_payment_integration/static/src/img/nbe.jpg" class="rounded float-right" alt="" style="width:100px;height:100px;"/>-->
+<!--                </t>-->
+
+<!--                <t t-else="">-->
+<!--                     <img src="/sita_payment_integration/static/src/img/qnb.jpg" class="rounded float-right" alt="" style="width:100px;height:100px;"/>-->
+<!--                </t>-->
+
+<!--            </div>-->
+<!--            <div class="col-md-2 col-sm-6 col">-->
+<!--                <img src="/sita_payment_integration/static/src/img/sita.jpg" class="rounded float-left" alt="" style="width:100px;height:100px;"/>-->
+<!--            </div>-->
+<!--            <div class="col-md-4 col-sm-0"></div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="copy">-->
+<!--        Copyright 2018 - 2026 <a href="https://sita-eg.com">Sita Egypt</a>-->
+<!--    </div>-->
+<!--</footer>-->
+<!--        </template>-->
+
+        <template id="footer" name="footer">
+    <footer class="footer mb-0">
+        <div class="container">
+            <div class="row justify-content-center">
+                <h3>Sponsored by</h3>
+            </div>
+            <div class="row justify-content-center align-items-center">
+                <div class="col-auto">
+                    <t t-if="account.bank_name=='NBE'">
+                        <img src="/sita_payment_integration/static/src/img/nbe.jpg"
+                             class="rounded" alt="" style="width:100px;height:100px;"/>
+                    </t>
+                    <t t-elif="account.bank_name=='Kashier'">
+                        <img src="/sita_payment_integration/static/src/img/kashier_logo.png"
+                             class="rounded" alt="" style="width:100px;height:100px;"/>
+                    </t>
+                    <t t-else="">
+                        <img src="/sita_payment_integration/static/src/img/qnb.jpg"
+                             class="rounded" alt="" style="width:100px;height:100px;"/>
+                    </t>
+                </div>
+                <div class="col-auto">
+                    <img src="/sita_payment_integration/static/src/img/sita.jpg"
+                         class="rounded" alt="" style="width:100px;height:100px;"/>
+                </div>
+            </div>
+        </div>
+        <div class="copy">
+            Copyright 2018 - 2026 <a href="https://sita-eg.com">Sita Egypt</a>
+        </div>
+    </footer>
+</template>
+    </data>
+</odoo>

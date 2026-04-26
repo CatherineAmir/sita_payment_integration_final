@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template name="session_failed" id="session_failed">
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+            <!-- Bootstrap CSS -->
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+                  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+                  crossorigin="anonymous"/>
+            <link rel="stylesheet" href="/sita_payment_integration/static/src/style.css"/>
+            <link rel="stylesheet" href="/sita_payment_integration/static/src/xml/page_css.css"/>
+
+
+                <div class="container">
+                    <t t-call="sita_payment_integration.header"/>
+                    <div class="container my-5">
+
+        <div class="alert alert-danger" role="alert">
+            <h1>oops something went error</h1>
+            <h2><em>{{error_cause}}</em> because <em>{{error_explanation}}</em></h2>
+            <h2>please contact your service provider</h2>
+        </div>
+
+
+
+
+    </div>
+
+
+                </div>
+
+            <t t-call="sita_payment_integration.footer"/>
+        </template>
+
+
+    </data>
+</odoo>

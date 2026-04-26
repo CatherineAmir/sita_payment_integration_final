@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="module_category_sita_pay" model="ir.module.category">
+            <field name="name">Sita-PAY</field>
+            <field name="description">Manage Access For SITA-PAY</field>
+            <field name="sequence">3</field>
+        </record>
+
+
+    </data>
+</odoo>

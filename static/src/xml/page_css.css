@@ -1,0 +1,23 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* The main content area grows to fill available space */
+.main,
+#wrapwrap,        /* Odoo's main wrapper */
+.o_main_content { /* Odoo's content wrapper */
+    flex: 1 0 auto;
+}
+
+/* Footer sits naturally at the bottom */
+footer.footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
