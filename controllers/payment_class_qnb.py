@@ -5,7 +5,7 @@ from requests.structures import CaseInsensitiveDict
 import urllib
 import logging
 _logger = logging.getLogger(__name__)
-host_name = 'sita-pay.com'
+
 import logging
 
 logger = logging.getLogger(__name__)

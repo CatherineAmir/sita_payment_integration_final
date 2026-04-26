@@ -350,6 +350,13 @@ class Transaction(models.Model):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             _logger.error("Exception in Get Order State QNB  %s, %s, %s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,order_id.name)
 
+
+
+    def get_state_Fawry(self,base_url,account_id,order_id):
+        # todo
+        _logger.info("Fawry integration is not implemented yet for transaction_id %s", order_id.name)
+        return
+
     def get_order_state(self):
 
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
@@ -371,6 +378,11 @@ class Transaction(models.Model):
             elif bank=="QNB":
                 _logger.info("in get_order_state for QNB for transaction_id %s", order_id.name)
                 self.get_state_QNB(base_url, account_id, order_id)
+
+            elif bank == "Fawry":
+                _logger.info("Fawry integration is not implemented yet for transaction_id %s", order_id.name)
+                self.get_state_Fawry(base_url, account_id, order_id)
+
 
             else:
                 _logger.error("Unknown bank name %s for order id %s", bank , order_id.name )
@@ -540,6 +552,12 @@ class Transaction(models.Model):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             _logger.error("Error in refund QNB %s %s %s  , %s for order_id %s", exc_type, exc_obj, exc_tb,e, order_id)
 
+    def refund_Fawry(self,base_url,account_id,order_id):
+        # todo
+        _logger.info("Fawry integration is not implemented yet for transaction_id %s", order_id.name)
+        return
+
+
     def refund_transaction(self):
 
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
@@ -554,6 +572,10 @@ class Transaction(models.Model):
 
             elif bank == 'QNB':
                 self.refund_QNB(base_url, account_id, order_id)
+
+
+            elif bank == 'Fawry':
+                self.refund_Fawry(base_url, account_id, order_id)
             else:
                 _logger.error("Unknown bank name %s for order id %s", bank, order_id.name)
 

@@ -71,6 +71,13 @@ class PaymentRequest(http.Controller):
 
                         elif bank == "QNB":
                             return self.redirect_home_QNB(base_url, account_id, order_id, link_type, company_id)
+
+                        elif bank == "Fawry":
+                            # todo
+                            return self.redirect_home_Fawary(base_url, account_id, order_id, link_type, company_id)
+
+
+
                         else:
                             _logger.info("Unknown bank type for order_id %s", order_id.name)
 
@@ -265,3 +272,12 @@ class PaymentRequest(http.Controller):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             _logger.error("bank session QNB failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
                           order_id.name)
+
+
+    def redirect_home_Fawary(base_url, account_id, order_id, link_type, company_id):
+
+        # todo
+        _logger.info("redirect_home_Fawry is called for order_id %s", order_id.name)
+        return request.render("sita_payment_integration.home_fawry", {
+            'link_type': link_type,
+            'order_id': order_id.name,   })
