@@ -1,0 +1,123 @@
+import hashlib
+
+def get_generate_signature(
+    merchant_code: str,
+    merchant_ref_num: str,
+    secure_hash_key: str,
+    # return_url: str,
+    # item_id: str,
+    # quantity: str | int,
+    # price: float =,
+
+    # customer_profile_id: str = ""  # Optional, defaults to empty string
+) -> str:
+    """
+    Generates a SHA-256 request signature.
+
+    Concatenation order:
+    merchantCode + merchantRefNum + customerProfileId + returnUrl + itemId + quantity + price + secureHashKey
+    """
+
+    # Format price to exactly 2 decimal places
+    # price_formatted = f"{price:.2f}"
+
+    # Concatenate all fields in the required order
+    raw_string = (
+        merchant_code +
+        merchant_ref_num +
+        # customer_profile_id +      # Empty string "" if not provided
+        # return_url +
+        # item_id +
+        # str(quantity) +
+        # price_formatted +
+        secure_hash_key
+    )
+
+    # Hash using SHA-256
+    signature = hashlib.sha256(raw_string.encode("utf-8")).hexdigest()
+
+    return signature
+def generate_signature(
+    merchant_code: str,
+    merchant_ref_num: str,
+    return_url: str,
+    item_id: str,
+    quantity: str | int,
+    price: float ,
+    secure_hash_key: str,
+    customer_profile_id: str = ""  # Optional, defaults to empty string
+) -> str:
+    """
+    Generates a SHA-256 request signature.
+
+    Concatenation order:
+    merchantCode + merchantRefNum + customerProfileId + returnUrl + itemId + quantity + price + secureHashKey
+    """
+
+    # Format price to exactly 2 decimal places
+    price_formatted = f"{price:.2f}"
+
+    # Concatenate all fields in the required order
+    raw_string = (
+        merchant_code +
+        merchant_ref_num +
+        customer_profile_id +      # Empty string "" if not provided
+        return_url +
+        item_id +
+        str(quantity) +
+        price_formatted +
+        secure_hash_key
+    )
+
+    # Hash using SHA-256
+    signature = hashlib.sha256(raw_string.encode("utf-8")).hexdigest()
+
+    return signature
+
+
+# ── Example Usage ──────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    # sig = generate_signature(
+    #     merchant_code="770000013917",
+    #     merchant_ref_num="231246546415",
+    #     return_url="https://developer.fawrystaging.com",
+    #     item_id="6b5fdea340e31b3b0339d4d4ae5",
+    #     quantity=2,
+    #     price=50.00,
+    #     secure_hash_key="1e76ec5b-ae12-497f-b58b-ed9fca686f6c",
+    #     customer_profile_id="adel.abdelmasih@sita-eg.com"   # omit or pass "" if not applicable
+    # )
+    # sig_two = "770000013917"+"231246546415"+ "1e76ec5b-ae12-497f-b58b-ed9fca686f6c"
+    #
+    #
+    # sig_2=hashlib.sha256(sig_two).hexdigest()
+    # merchantCode = "770000013917"
+    # merchantRefNumber = "231246546415"
+    # merchant_sec_key = "1e76ec5b-ae12-497f-b58b-ed9fca686f6c"
+    # signature = hashlib.sha256((merchantCode + merchantRefNumber + merchant_sec_key).encode("utf-8")).hexdigest()
+    #
+    # print("Signature:", signature)
+    # print("Signature: ", sig)
+    # importing the requests library
+    import requests
+    # importing Hash Library
+    # import hashlib
+
+    # FawryPay Get Payment Status api-endpoint
+    URL = "https://atfawry.fawrystaging.com/ECommerceWeb/Fawry/payments/status/v2"
+
+    # Payment Data
+    merchantCode = "770000013917"
+    merchantRefNumber = "231246546415"
+    merchant_sec_key = "1e76ec5b-ae12-497f-b58b-ed9fca686f6c"
+    signature = hashlib.sha256((merchantCode + merchantRefNumber + merchant_sec_key).encode("utf-8")).hexdigest()
+
+    # defining a params dict for the parameters to be sent to the API
+    PaymentData = {'merchantCode': merchantCode, 'merchantRefNumber': merchantRefNumber, 'signature': signature}
+
+    # sending get request and saving the response as response object
+    status_request = requests.get(url=URL, params=PaymentData)
+
+    # extracting data in json format
+    status_response = status_request.json()
+    print("Status Code: ", status_response)
