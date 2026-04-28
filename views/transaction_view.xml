@@ -155,6 +155,12 @@
 <!--                                    <field name="kashier_refund_amount_reminder" readonly="1"/>-->
                                 </group>
                             </page>
+
+                            <page name="AAIB" string="AAIB Details" invisible="bank_name != 'AAIB'">
+                                <group>
+                                    <field name="invoice_id"/>
+                                </group>
+                            </page>
                         </notebook>
                     </sheet>
                     <chatter/>

@@ -115,6 +115,8 @@ class Transaction(models.Model):
     kashier_order_id = fields.Char(string="Kashier Order ID", copy=False, tracking=True)
 
 
+    invoice_id=fields.Char(string="Invoice Number", tracking=True,help="Added for AAIB Bank as reference number")
+
     # kashier_refund_amount_reminder = fields.Float(string='Kashier Refund Amount Reminder')
 
     @api.constrains('kashier_refund_amount')
