@@ -49,6 +49,7 @@
         'templates/payment_failed.xml',
         'templates/session_failed.xml',
         'templates/link_expire.xml',
+        'templates/home_fawry.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

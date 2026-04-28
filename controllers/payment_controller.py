@@ -10,6 +10,7 @@ from odoo.http import request
 from .payment_class_NBE import Payment
 from .payment_class_qnb import PaymentQNB
 from .kashier_class import Kashier
+from .payment_class_fawry import PaymentFawry
 import requests
 import jinja2
 import os
@@ -100,6 +101,7 @@ class PaymentRequest(http.Controller):
             return self.handel_other_states(context)
 
     def handel_other_states(self, context):
+        print("context", context)
         order_id = context.get('order_id')
 
         if order_id.state == 'done':
@@ -124,14 +126,17 @@ class PaymentRequest(http.Controller):
 
     @http.route('/success_payment', type='http', auth="none", methods=['GET', 'POST'])
     def success_transaction(self, **kw):
-        print("kw", kw)
+        print("kwwwww", kw)
+        print("kw.get("")", kw.get('merchantRefNumber'))
         if kw.get('merchantOrderId'):
-            order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantOrderId'))])
+            order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantOrderId'))],limit=1)
+        elif kw.get('merchantRefNumber'):
+            order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantRefNumber'))],limit=1)
         else:
             result_indicator = kw.get('resultIndicator')
             order_id = request.env['transaction'].sudo().search([('success_indicator', '=', result_indicator)])
         base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
-
+        print("order_id",order_id)
         if order_id:
             context = {
                 'order_id': order_id,
@@ -140,7 +145,9 @@ class PaymentRequest(http.Controller):
                 "order": order_id,
 
             }
+            print("context", context)
             order_id.sudo().get_order_state()
+            print("order_id after update state", order_id.state)
             return self.handel_other_states(context)
 
     def redirect_home_NBE(self, base_url, account_id, order_id, link_type, company_id):
@@ -274,10 +281,44 @@ class PaymentRequest(http.Controller):
                           order_id.name)
 
 
-    def redirect_home_Fawary(base_url, account_id, order_id, link_type, company_id):
+    def redirect_home_Fawary(self,base_url, account_id, order_id, link_type, company_id):
 
-        # todo
-        _logger.info("redirect_home_Fawry is called for order_id %s", order_id.name)
-        return request.render("sita_payment_integration.home_fawry", {
-            'link_type': link_type,
-            'order_id': order_id.name,   })
+        try:
+            # valid_till = order_id.link_validity
+            payment = PaymentFawry(account_id.integration_username, account_id.integration_password,
+                              account_id.merchant_id, order_id.name, link_type, base_url)
+            session_dict = payment.authorize(order_id.currency_id.name, order_id.amount)
+            # transaction_vals = {
+            #     'session_id': str(session_dict) if session_dict else None,
+            #     'session_version': payment.session_version if hasattr(payment,
+            #                                                           'session_version') else None,
+            #     'success_indicator': payment.success_indicator if hasattr(payment,
+            #                                                               'success_indicator') else None,
+            #     'result': payment.result if hasattr(payment, 'result') else None,
+            # }
+            # print("session_dict ", session_dict)
+            # order_id.write(transaction_vals)
+            context = {
+                'link_type': link_type,
+                # 'session_id': payment.session_id,
+                'order_id': order_id.name,
+                # 'session_version': payment.session_version,
+                'merchant_name': account_id.merchant_id,
+                'amount': order_id.amount,
+                'currency': order_id.currency_id.name,
+                # 'description': order_id.payment_subject.replace("\n", "\t"),
+                'client_name': order_id.client_name,
+                'client_email': order_id.client_email,
+                'reservation_id': order_id.reservation_id,
+                "company_id": company_id,
+                "account": order_id.account_id,
+                "order": order_id,
+                "session_url": session_dict,
+                "test": True if 'test' in order_id.account_id.api_url else False,
+            }
+
+            return request.render("sita_payment_integration.home_fawry", context)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            _logger.error("fawry  failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
+                          order_id.name)

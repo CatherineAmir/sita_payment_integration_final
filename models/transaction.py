@@ -8,6 +8,7 @@ from datetime import timedelta
 from ..controllers.kashier_class import Kashier
 from ..controllers.payment_class_NBE import Payment
 from ..controllers.payment_class_qnb import PaymentQNB
+from ..controllers.payment_class_fawry import PaymentFawry
 from odoo.exceptions import ValidationError
 import urllib.parse as parse
 import logging
@@ -353,9 +354,42 @@ class Transaction(models.Model):
 
 
     def get_state_Fawry(self,base_url,account_id,order_id):
-        # todo
-        _logger.info("Fawry integration is not implemented yet for transaction_id %s", order_id.name)
-        return
+        payment =PaymentFawry(account_id.integration_username, account_id.integration_password,
+                              account_id.merchant_id, order_id.name, account_id.api_url, base_url)
+        order_state = payment.retrieve_order()
+        print("order_state", order_state)
+
+        try:
+            if order_state['orderStatus'] == 'PAID':
+                payment_status = 'done'
+            elif order_state['orderStatus'] == 'PENDING':
+                payment_status = 'pending'
+            elif order_state['orderStatus'] == 'FAILED':
+                payment_status = 'failed'
+            elif order_state['orderStatus'] == 'PARTIALLY_REFUNDED':
+                payment_status = 'partially_refunded'
+            elif order_state['orderStatus'] == 'REFUNDED':
+                payment_status = 'refunded'
+            else:
+                payment_status = 'not_processed'
+
+            _logger.info("payment_status in fawry %s", payment_status)
+            payment_details = {
+                'amount_charged': float(order_state['orderAmount']),
+
+                'state': payment_status,
+                'payment_status': payment_status,
+                # 'kashier_order_id': str(order_state['data']['orderId']),
+                # 'target_transaction_id': str(order_state['data']['targetTransactionId'])
+                'session_id': order_state['threeDSInfo']['sessionId'],
+
+            }
+            order_id.sudo().write(payment_details)
+
+        except Exception as e:
+            _logger.error("Exception in Get Kashier Order State %s ", e)
+
+        return True
 
     def get_order_state(self):
 
