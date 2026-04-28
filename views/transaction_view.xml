@@ -15,7 +15,7 @@
 
                         <button name="get_order_state" string="Order State" type="object" class="btn btn-primary"/>
 
-<!--                        <button name="refund_transaction" string="Refund" type="object" invisible="state in ['refunded','partially_refunded']" groups="sita_payment_integration.create_refund" class="btn btn-warning"/>-->
+                        <button name="refund_transaction" string="Refund" type="object" invisible="state != 'done'" groups="sita_payment_integration.create_refund" class="btn btn-warning"/>
 
 
 
@@ -96,10 +96,12 @@
                             <page name="session_details" string="Session Details">
                                 <group readonly="1">
                                     <field name="session_id" readonly="1"/>
+                                    <field name="fawry_ref" readonly="1" invisible="bank_name != 'Fawry'"/>
+                                    <field name="fawry_payment_method" readonly="1" invisible="bank_name != 'Fawry'"/>
                                     <field name="session_version" readonly="1"/>
                                     <field name="success_indicator" readonly="1"/>
                                     <field name="result" readonly="1"/>
-
+                                    <field name="refunded_amount"/>
                                 </group>
                             </page>
                             <page name="error" string="Error" invisible="error_cause == '' ">

@@ -5,6 +5,7 @@ import base64
 from requests.structures import CaseInsensitiveDict
 import urllib
 import logging
+import hashlib
 _logger = logging.getLogger(__name__)
 from ..tools.hashing_fawry import hash
 
@@ -36,19 +37,14 @@ class PaymentFawry():
         # headers["Authorization"] = f"Basic {auth_encoded}"
         return headers
 
-    def authorize(self, order_currency, order_amount):
+    def authorize(self, order_currency, order_amount,customer_mobile=None,customer_email=None):
         # todo
         self.order_currency = str(order_currency)
         self.order_amount = float(order_amount)
         price_formatted = f"{self.order_amount:.2f}"
-        # return_url = self.host_name+f'/success_payment/?order_id={self.order_id}'
-
-        return_url = self.host_name + '/success_payment'
-        print("return_url", return_url)
-        data = (self.merchant + self.order_id + ""+ return_url + "Reservation" + "1" + price_formatted + self.apiPassword)
-        # print("data", data)
-        signature = hash(data)
-        # print("signature", signature)
+        return_url = self.host_name + f'/success_payment/?order_id={self.order_id}'
+        data_hashed = (self.merchant + self.order_id + ""+ return_url + "Reservation" + "1" + price_formatted + self.apiPassword)
+        signature = hash(data_hashed)
         data = {
             "merchantCode": self.merchant,
             "merchantRefNum": self.order_id,
@@ -61,30 +57,20 @@ class PaymentFawry():
                     "quantity": 1,
                 }
             ],
+            "customerMobile": customer_mobile if customer_mobile else "",
+            "customerEmail": customer_email if customer_email else "",
             "returnUrl": return_url,
-            "orderWebHookUrl":return_url,
             "signature": signature
         }
-        # print("data", data)
+
         url = self.url + 'fawrypay-api/api/payments/init'
-        response = requests.post(url, headers=self.create_header(), json=data)
-        # response_dict = response.json()
-        response_dict = response.content.decode()
-        # print("response_dict", response_dict)
-        # try:
-        #     self.result = response_dict['result']
-        #
-        #     self.session_id = response_dict['session']['id']
-        #     self.session_version = response_dict['session']['version']
-        #
-        #     self.success_indicator = response_dict['successIndicator']
-        #
-        #     self.session_update_status = response_dict['session']['updateStatus']
-        # except Exception as e:
-        #     _logger.error("Exception in authorize QNB %s %s",e,e.with_traceback())
-        #     pass
-        # link
-        return response_dict
+        try:
+            response = requests.post(url, headers=self.create_header(), json=data)
+            response_dict = response.content.decode()
+            return response_dict
+        except requests.exceptions.RequestException as e:
+            _logger.error('HTTPSConnection Pool Connection pool %s', e)
+            return False
 
     def response_handler(self, content):
         result = urllib.parse.parse_qs(content)
@@ -95,55 +81,54 @@ class PaymentFawry():
 
     def retrieve_order(self):
         url = self.url + 'ECommerceWeb/Fawry/payments/status/v2'
-        data = (self.merchant + self.order_id + self.apiPassword)
+        data = (str(self.merchant) + str(self.order_id) + self.apiPassword)
         signature = hash(data)
-        # print("url", url)
-        # print("signature", signature)
         PaymentData = {'merchantCode': self.merchant, 'merchantRefNumber': self.order_id, 'signature': signature}
+        try:
+            status_request = requests.get(url=url, params=PaymentData)
+            status_response = status_request.json()
+            return status_response
+        except requests.exceptions.RequestException as e:
+            _logger.error('HTTPSConnection Pool Connection pool %s', e)
 
-        status_request = requests.get(url=url, params=PaymentData)
-        status_response = status_request.json()
-        # print("Status Code: ", status_response)
-        return status_response
 
-        # url=self.url+ f"/api/rest/version/100/merchant/{self.merchant}/order/{self.order_id}"
-        #
-        # try:
-        #     response = requests.get(url, headers=self.create_header())
-        #
-        # except Exception as e:
-        #     _logger.error('HTTPSConnection Pool Connection pool %s', e)
-        #
-        # else:
-        #     response_dict = response.json()
-        #
-        #     return response_dict
-        # return False
 
-    def refund_order(self, order,refunded_amount):
-        # refund order in fawry
-        # todo
-        #
-        # payload = ('apiOperation=REFUND&apiPassword=' + \
-        #            self.apiPassword + '&apiUsername=' + self.apiUsername + '&merchant=' + self.merchant +
-        #            '&order.id=' + self.order_id + '&transaction.amount=' + str(refunded_amount) +
-        #            '&transaction.currency=' + order.currency_id.name + '&transaction.id=' + order.auth_3d_transaction_id)
-        # data={
-        #     'apiOperation':"REFUND",
-        #     'transaction':{
-        #         'amount': refunded_amount,
-        #         'currency': order.currency_id.name,
-        #
-        #     }
-        #
-        # }
-        # url=self.url+ f"/api/rest/version/100/merchant/{self.merchant}/order/{self.order_id}/transaction/{order.auth_3d_transaction_id}"
-        # try:
-        #     response = requests.put(url, headers=self.create_header(), data=json.dumps(data, ensure_ascii=False))
-        # except Exception as e:
-        #     _logger.error('Exception Pool Connection pool %s', e)
-        #     order.message_post(body="Exception done in refunded {}".format(e))
-        # else:
-        #     response_dict=response.json()
-        #     return response_dict
-        return False
+    def refund_order(self, order,refund_amount):
+        real_amount_refund = f"{refund_amount:.2f}"
+        data_hashed = (str(self.merchant) + str(order.fawry_ref) + str(real_amount_refund) + "Refund" + self.apiPassword)
+        signature = hash(data_hashed)
+        data = {
+            "merchantCode": str(self.merchant),
+            "referenceNumber": str(order.fawry_ref),
+            "refundAmount": str(real_amount_refund),
+            "reason": "Refund",
+            "signature": signature
+        }
+        url = self.url + 'ECommerceWeb/Fawry/payments/refund'
+        try:
+        # response = requests.get(url, params = json.dumps(data))
+            response = requests.post(url, headers=self.create_header(), json=data)
+            status_response = response.json()
+            print("Refund response status codeqqq:", status_response)
+            print("status_response.get('status_response')",status_response.get('statusCode'))
+            if status_response.get('statusCode') in (200, 201):
+
+                try:
+                    print("in return")
+                    return response.json()
+                except ValueError:
+                    return {
+                        "success": False,
+                        "message": "Refund response is not valid JSON",
+                        "raw_response": response.text,
+                    }
+            #
+            order.message_post(
+                body="Refund failed in Fawry. Status: {} Response: {}".format(
+                    response.status_code, response.text
+                )
+            )
+            return False
+        except requests.exceptions.RequestException as e:
+            order.message_post(body="Exception done in refunded in Fawry {}".format(e))
+            return False

@@ -117,6 +117,9 @@ class Transaction(models.Model):
 
     invoice_id=fields.Char(string="Invoice Number", tracking=True,help="Added for AAIB Bank as reference number")
 
+    # fawry fields
+    fawry_ref = fields.Char(string="Fawry Ref",copy=False, tracking=True)
+    fawry_payment_method = fields.Char(string="Fawry Payment Method",copy=False, tracking=True)
     # kashier_refund_amount_reminder = fields.Float(string='Kashier Refund Amount Reminder')
 
     @api.constrains('kashier_refund_amount')

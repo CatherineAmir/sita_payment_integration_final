@@ -103,7 +103,7 @@ class PaymentRequest(http.Controller):
     def handel_other_states(self, context):
         print("context", context)
         order_id = context.get('order_id')
-
+        print("order_id.state", order_id.state)
         if order_id.state == 'done':
             template_name = "sita_payment_integration.payment_done"
 
@@ -124,6 +124,13 @@ class PaymentRequest(http.Controller):
 
         return request.render(template_name, context)
 
+    @http.route('/webhook_response', type='http', auth="none", methods=['GET', 'POST'], csrf=False)
+    def webhook_response(self, **kw):
+        print("webhook data", kw)
+
+        # Always return 200
+        # return request.make_response("OK", headers=[("Content-Type", "text/plain")])
+
     @http.route('/success_payment', type='http', auth="none", methods=['GET', 'POST'])
     def success_transaction(self, **kw):
         print("kwwwww", kw)
@@ -132,6 +139,8 @@ class PaymentRequest(http.Controller):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantOrderId'))],limit=1)
         elif kw.get('merchantRefNumber'):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantRefNumber'))],limit=1)
+        elif kw.get("order_id"):
+            order_id = request.env['transaction'].sudo().search([('name', '=', kw.get("order_id"))],limit=1)
         else:
             result_indicator = kw.get('resultIndicator')
             order_id = request.env['transaction'].sudo().search([('success_indicator', '=', result_indicator)])
@@ -145,9 +154,9 @@ class PaymentRequest(http.Controller):
                 "order": order_id,
 
             }
-            print("context", context)
+            # print("context", context)
             order_id.sudo().get_order_state()
-            print("order_id after update state", order_id.state)
+            # print("order_id after update state", order_id.state)
             return self.handel_other_states(context)
 
     def redirect_home_NBE(self, base_url, account_id, order_id, link_type, company_id):
@@ -218,7 +227,6 @@ class PaymentRequest(http.Controller):
                 'link_type': link_type,
                 'session_id': order_id.session_id,
                 'order_id': order_id.name,
-
                 'merchant_name': account_id.merchant_id,
                 'amount': order_id.amount,
                 'currency': order_id.currency_id.name,
@@ -287,26 +295,13 @@ class PaymentRequest(http.Controller):
             # valid_till = order_id.link_validity
             payment = PaymentFawry(account_id.integration_username, account_id.integration_password,
                               account_id.merchant_id, order_id.name, link_type, base_url)
-            session_dict = payment.authorize(order_id.currency_id.name, order_id.amount)
-            # transaction_vals = {
-            #     'session_id': str(session_dict) if session_dict else None,
-            #     'session_version': payment.session_version if hasattr(payment,
-            #                                                           'session_version') else None,
-            #     'success_indicator': payment.success_indicator if hasattr(payment,
-            #                                                               'success_indicator') else None,
-            #     'result': payment.result if hasattr(payment, 'result') else None,
-            # }
-            # print("session_dict ", session_dict)
-            # order_id.write(transaction_vals)
+            session_dict = payment.authorize(order_id.currency_id.name, order_id.amount,order_id.client_mobile,order_id.client_email)
             context = {
                 'link_type': link_type,
-                # 'session_id': payment.session_id,
                 'order_id': order_id.name,
-                # 'session_version': payment.session_version,
                 'merchant_name': account_id.merchant_id,
                 'amount': order_id.amount,
                 'currency': order_id.currency_id.name,
-                # 'description': order_id.payment_subject.replace("\n", "\t"),
                 'client_name': order_id.client_name,
                 'client_email': order_id.client_email,
                 'reservation_id': order_id.reservation_id,
