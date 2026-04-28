@@ -11,7 +11,6 @@
         <link rel="stylesheet" href="/sita_payment_integration/static/src/style.css"/>
         <link rel="stylesheet" href="/sita_payment_integration/static/src/xml/page_css.css"/>
 
-
         <div class="container my-3">
             <t t-call="sita_payment_integration.header"/>
             <div class="container">
@@ -93,20 +92,26 @@
                             </td>
                         </tr>
 
-
+<!--                        <tr>-->
+<!--                            <tr>-->
+<!--                                <td colspan="2" class="text-center pt-3">-->
+<!--                                    <button class="btn btn-info btn-lg px-5"-->
+<!--                                            t-att-onclick="'window.location.href=\'' + session_url + '\''">-->
+<!--                                            Pay Now-->
+<!--                                    </button>-->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                        </tr>-->
                     </tbody>
 
 
                 </table>
-                <!--                        <iframe style="width: 100vw; height: 100vh; border: none;"-->
-                <!--                                id="fawry-iframe"-->
-                <!--                                t-att-src="session_url"-->
-                <!--                                allowpaymentrequest="true"-->
-                <!--                                allow="payment"-->
-                <!--                        />-->
-                <script>
-                    window.location.href = "<t t-esc='session_url'/>";
-                </script>
+                                        <iframe style="width: 100vw; height: 100vh; border: none;"
+                                                id="fawry-iframe"
+                                                t-att-src="session_url"
+                                                allowpaymentrequest="true"
+                                                allow="payment"
+                                        />
             </div>
         </div>
         <t t-call="sita_payment_integration.footer"/>

@@ -62,7 +62,7 @@ class PaymentFawry():
                 }
             ],
             "returnUrl": return_url,
-            # "orderWebHookUrl":return_url,
+            "orderWebHookUrl":return_url,
             "signature": signature
         }
         # print("data", data)
