@@ -124,9 +124,11 @@ class PaymentRequest(http.Controller):
 
         return request.render(template_name, context)
 
-    @http.route('/webhook_response', type='http', auth="none", methods=['GET', 'POST'], csrf=False)
+    @http.route('/merchatCallbakPage', type='http', auth="public", methods=['POST'],csrf=False)
     def webhook_response(self, **kw):
         print("webhook data", kw)
+        # print("kw", request.content.decode())
+        _logger.info("webhook_response called with data: %s", kw)
 
         # Always return 200
         # return request.make_response("OK", headers=[("Content-Type", "text/plain")])

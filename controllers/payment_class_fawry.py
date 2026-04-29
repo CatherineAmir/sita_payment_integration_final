@@ -60,9 +60,10 @@ class PaymentFawry():
             "customerMobile": customer_mobile if customer_mobile else "",
             "customerEmail": customer_email if customer_email else "",
             "returnUrl": return_url,
+            "orderWebHookUrl": self.host_name + '/merchatCallbakPage',
             "signature": signature
         }
-
+        print("ordercallback",self.host_name + '/webhook_response')
         url = self.url + 'fawrypay-api/api/payments/init'
         try:
             response = requests.post(url, headers=self.create_header(), json=data)

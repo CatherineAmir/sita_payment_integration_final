@@ -386,7 +386,7 @@ class Transaction(models.Model):
                 'payment_status': payment_status,
                 # 'kashier_order_id': str(order_state['data']['orderId']),
                 # 'target_transaction_id': str(order_state['data']['targetTransactionId'])
-                'session_id': order_state['threeDSInfo']['sessionId'],
+                'session_id': order_state['threeDSInfo']['sessionId'] if 'threeDSInfo' in order_state and 'sessionId' in order_state['threeDSInfo'] else "",
 
             }
             order_id.sudo().write(payment_details)
