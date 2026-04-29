@@ -13,7 +13,6 @@ from odoo.exceptions import ValidationError
 import urllib.parse as parse
 import logging
 
-
 _logger = logging.getLogger(__name__)
 
 
@@ -102,8 +101,7 @@ class Transaction(models.Model):
     refund_amount = fields.Float('Actual Refund Amount')
     refunded_amount = fields.Float(string=' Requested Refund Amount', tracking=True)
 
-
-    #kashier fields
+    # kashier fields
     # customer_reference = fields.Char("Customer Reference")
     # customer_email = fields.Char("Customer Email")
     bank_name = fields.Selection(related='account_id.bank_name', string='Bank Name')
@@ -114,12 +112,14 @@ class Transaction(models.Model):
     target_transaction_id = fields.Char(string="Target Transaction ID")
     kashier_order_id = fields.Char(string="Kashier Order ID", copy=False, tracking=True)
 
+    invoice_id = fields.Char(string="Invoice Number", tracking=True, help="Added for AAIB Bank as reference number")
 
-    invoice_id=fields.Char(string="Invoice Number", tracking=True,help="Added for AAIB Bank as reference number")
 
-    # fawry fields
-    fawry_ref = fields.Char(string="Fawry Ref",copy=False, tracking=True)
-    fawry_payment_method = fields.Char(string="Fawry Payment Method",copy=False, tracking=True)
+    fawry_ref = fields.Char(string="Fawry Ref", copy=False, tracking=True)
+    fawry_payment_method = fields.Char(string="Fawry Payment Method", copy=False, tracking=True)
+
+
+
     # kashier_refund_amount_reminder = fields.Float(string='Kashier Refund Amount Reminder')
 
     @api.constrains('kashier_refund_amount')
@@ -128,14 +128,15 @@ class Transaction(models.Model):
             if rec.kashier_refund_amount > rec.amount:
                 raise ValidationError(_("Refund amount cannot be greater than the charged amount."))
 
+
     @api.depends('link_validity', 'link_created')
     def _compute_expire_on(self):
         for r in self:
             if r.link_created:
                 r.expire_on = r.link_created + timedelta(hours=r.link_validity)
 
-    def send_whatsapp(self):
 
+    def send_whatsapp(self):
         link = "https://web.whatsapp.com/send?phone=" + self.client_mobile
         if self.client_mobile.startswith("01") and len(self.client_mobile) == 11:
 
@@ -148,15 +149,15 @@ class Transaction(models.Model):
             raise ValidationError(_("Client Mobile should Start with + and country code if the client is not Egyptian"))
 
         message_string = """
-        *Hello {}* 
-        
-        *Your reservation description* : {}
-        *Your Total Amount is:* {} {} 
-        *You can pay by the following link:*
-        *{}*
-        *This Link is valid for:* {} Hours         
-        """.format(self.client_name, self.payment_subject, self.amount, self.currency_id.name
-                   , self.payment_link, self.link_validity)
+            *Hello {}* 
+    
+            *Your reservation description* : {}
+            *Your Total Amount is:* {} {} 
+            *You can pay by the following link:*
+            *{}*
+            *This Link is valid for:* {} Hours         
+            """.format(self.client_name, self.payment_subject, self.amount, self.currency_id.name
+                       , self.payment_link, self.link_validity)
 
         return {
             'type': 'ir.actions.act_url',
@@ -165,11 +166,12 @@ class Transaction(models.Model):
             'target': 'new'
         }
 
-    def get_kashier_payment_status(self,base_url,account_id,order_id):
+
+    def get_kashier_payment_status(self, base_url, account_id, order_id):
         # account_id = order_id.account_id
         payment = Kashier(account_id.integration_username, account_id.integration_password,
                           account_id.secret_key, account_id.merchant_id,
-                          account_id.api_url, base_url,order_id.session_id)
+                          account_id.api_url, base_url, order_id.session_id)
         order_state = payment.retrieve_order()
 
         try:
@@ -203,7 +205,8 @@ class Transaction(models.Model):
 
         return True
 
-    def get_state_NBE(self,base_url,account_id,order_id):
+
+    def get_state_NBE(self, base_url, account_id, order_id):
         try:
             payment = Payment(account_id.integration_username, account_id.integration_password,
                               account_id.merchant_id,
@@ -280,7 +283,7 @@ class Transaction(models.Model):
                           exc_obj, exc_tb, order_id.name)
 
 
-    def get_state_QNB(self,base_url,account_id,order_id):
+    def get_state_QNB(self, base_url, account_id, order_id):
         try:
             payment = PaymentQNB(account_id.integration_username, account_id.integration_password,
                                  account_id.merchant_id,
@@ -350,17 +353,18 @@ class Transaction(models.Model):
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
 
-                    _logger.error("Exception in Get Order State QNB %s, %s, %s,%s for order_id %s", e,exc_type, exc_obj, exc_tb ,order_id.name )
+                    _logger.error("Exception in Get Order State QNB %s, %s, %s,%s for order_id %s", e, exc_type, exc_obj,
+                                  exc_tb, order_id.name)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            _logger.error("Exception in Get Order State QNB  %s, %s, %s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,order_id.name)
+            _logger.error("Exception in Get Order State QNB  %s, %s, %s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
+                          order_id.name)
 
 
-
-    def get_state_Fawry(self,base_url,account_id,order_id):
-        payment =PaymentFawry(account_id.integration_username, account_id.integration_password,
-                              account_id.merchant_id, order_id.name, account_id.api_url, base_url)
+    def get_state_Fawry(self, base_url, account_id, order_id):
+        payment = PaymentFawry(account_id.integration_username, account_id.integration_password,
+                               account_id.merchant_id, order_id.name, account_id.api_url, base_url)
         order_state = payment.retrieve_order()
         print("order_state", order_state)
 
@@ -371,7 +375,7 @@ class Transaction(models.Model):
                 payment_status = 'pending'
             elif order_state['orderStatus'] == 'FAILED':
                 payment_status = 'failed'
-            elif order_state['orderStatus'] == 'PARTIALLY_REFUNDED':
+            elif order_state['orderStatus'] == 'PARTIAL_REFUNDED':
                 payment_status = 'partially_refunded'
             elif order_state['orderStatus'] == 'REFUNDED':
                 payment_status = 'refunded'
@@ -383,12 +387,15 @@ class Transaction(models.Model):
                 'amount_charged': float(order_state['orderAmount']),
 
                 'state': payment_status,
-                'payment_status': payment_status,
+                # 'payment_status': payment_status,
                 # 'kashier_order_id': str(order_state['data']['orderId']),
                 # 'target_transaction_id': str(order_state['data']['targetTransactionId'])
-                'session_id': order_state['threeDSInfo']['sessionId'] if 'threeDSInfo' in order_state and 'sessionId' in order_state['threeDSInfo'] else "",
+                'session_id': str(order_state['threeDSInfo']['sessionId']) if hasattr(order_state, 'threeDSInfo') else None,
+                'fawry_ref': str(order_state['fawryRefNumber']) if order_state['fawryRefNumber'] else '',
+                'fawry_payment_method': str(order_state['paymentMethod']) if order_state['paymentMethod'] else '',
 
             }
+            print("payment_details", payment_details)
             order_id.sudo().write(payment_details)
 
         except Exception as e:
@@ -396,8 +403,8 @@ class Transaction(models.Model):
 
         return True
 
-    def get_order_state(self):
 
+    def get_order_state(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         self.check_link_validity()
         for order_id in self:
@@ -414,7 +421,7 @@ class Transaction(models.Model):
                 return self.get_kashier_payment_status(base_url, account_id, order_id)
 
 
-            elif bank=="QNB":
+            elif bank == "QNB":
                 _logger.info("in get_order_state for QNB for transaction_id %s", order_id.name)
                 self.get_state_QNB(base_url, account_id, order_id)
 
@@ -424,19 +431,23 @@ class Transaction(models.Model):
 
 
             else:
-                _logger.error("Unknown bank name %s for order id %s", bank , order_id.name )
+                _logger.error("Unknown bank name %s for order id %s", bank, order_id.name)
+
 
     @api.constrains('amount')
     def check_amount(self):
         if self.amount <= 0.0:
             raise ValidationError(_("Order amount must be a positive number Greater than zero"))
 
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if not vals.get('name'):
-                vals['name'] = self.env['ir.sequence'].with_company(self.company_id).next_by_code('transaction.sequence') or _('New')
+                vals['name'] = self.env['ir.sequence'].with_company(self.company_id).next_by_code(
+                    'transaction.sequence') or _('New')
         return super(Transaction, self).create(vals_list)
+
 
     def create_payment_link(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
@@ -447,6 +458,7 @@ class Transaction(models.Model):
                 transaction.link_created = datetime.now()
                 transaction.link_active = True
                 valid_till = transaction.link_validity
+
 
     @api.model
     def check_link_validity(self):
@@ -468,7 +480,9 @@ class Transaction(models.Model):
             else:
 
                 order_id.link_active = False
-    def refund_NBE(self,base_url,account_id,order_id):
+
+
+    def refund_NBE(self, base_url, account_id, order_id):
         try:
             payment = Payment(account_id.integration_username, account_id.integration_password,
                               account_id.merchant_id,
@@ -500,10 +514,12 @@ class Transaction(models.Model):
                     })
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            _logger.error("Exception in Refund NBE %s, %s, %s,%s for order_id %s", e,e, exc_type, exc_obj, exc_tb,order_id.name)
+            _logger.error("Exception in Refund NBE %s, %s, %s,%s for order_id %s", e, e, exc_type, exc_obj, exc_tb,
+                          order_id.name)
             return True
 
-    def refund_Kashier(self,base_url,account_id,order_id):
+
+    def refund_Kashier(self, base_url, account_id, order_id):
         try:
             payment = Kashier(account_id.integration_username, account_id.integration_password,
                               account_id.secret_key, account_id.merchant_id,
@@ -542,16 +558,19 @@ class Transaction(models.Model):
                         }
                     }
                 else:
-                    _logger.error("Success response Failed from Kashier for order_id %s ,the refund response %s", order_id,refund_response)
+                    _logger.error("Success response Failed from Kashier for order_id %s ,the refund response %s", order_id,
+                                  refund_response)
             else:
                 _logger.error("No Refund response from Kashier for order_id %s", order_id)
                 return True
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            _logger.error("Exception in Refund Kashier %s, %s, %s,%s for order_id %s", e,e, exc_type, exc_obj, exc_tb,order_id.name)
+            _logger.error("Exception in Refund Kashier %s, %s, %s,%s for order_id %s", e, e, exc_type, exc_obj, exc_tb,
+                          order_id.name)
             return True
 
-    def refund_QNB(self,base_url,account_id,order_id):
+
+    def refund_QNB(self, base_url, account_id, order_id):
         try:
             payment = PaymentQNB(account_id.integration_username, account_id.integration_password,
                                  account_id.merchant_id,
@@ -589,16 +608,59 @@ class Transaction(models.Model):
                 _logger.error("No Refund response from QNB for order_id %s", order_id)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            _logger.error("Error in refund QNB %s %s %s  , %s for order_id %s", exc_type, exc_obj, exc_tb,e, order_id)
+            _logger.error("Error in refund QNB %s %s %s  , %s for order_id %s", exc_type, exc_obj, exc_tb, e, order_id)
 
-    def refund_Fawry(self,base_url,account_id,order_id):
-        # todo
-        _logger.info("Fawry integration is not implemented yet for transaction_id %s", order_id.name)
-        return
 
+    def refund_Fawry(self, base_url, account_id, order_id):
+        # try:
+        payment = PaymentFawry(account_id.integration_username, account_id.integration_password,
+                               account_id.merchant_id, order_id.name,
+                               account_id.api_url, base_url)
+        if order_id.refunded_amount <= 0.0:
+            raise ValidationError(_("Refund amount must be a positive number Greater than zero"))
+        refund_response = payment.refund_order(order_id, order_id.refunded_amount)
+
+        _logger.info("refund_response from Kashier %s", refund_response)
+        if refund_response:
+            # if refund_response['response']['result'] == 'SUCCESS':
+            order_state = payment.retrieve_order()
+            print("order_state", order_state)
+            if order_state:
+                if order_state['orderStatus'] == 'REFUNDED':
+                    payment_status = 'refunded'
+                elif order_state['orderStatus'] == 'PARTIAL_REFUNDED':
+                    payment_status = 'partially_refunded'
+                else:
+                    payment_status = order_id.state
+
+                order_id.write({
+                    "order_amount": float(order_state['orderAmount']),
+                    "state": payment_status,
+                    "order_refunded_amount": float(order_state['refundedAmount']),
+
+                })
+                return {
+                    'effect': {
+                        'fadeout': 'slow',
+                        'message': f'Refunded Processed Successfully',
+                        'type': 'rainbow_man',
+                    }
+                }
+            else:
+                _logger.error("Success response Failed from Fawry for order_id %s ,the refund response %s",
+                              order_id, refund_response)
+        else:
+            _logger.error("No Refund response from Fawry for order_id %s", order_id)
+            return True
+
+
+    # except Exception as e:
+    #     exc_type, exc_obj, exc_tb = sys.exc_info()
+    #     _logger.error("Exception in Refund Fawry %s, %s, %s,%s for order_id %s", e, e, exc_type, exc_obj, exc_tb,
+    #                   order_id.name)
+    #     return True
 
     def refund_transaction(self):
-
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         for order_id in self:
 
@@ -607,7 +669,7 @@ class Transaction(models.Model):
             if bank == 'NBE':
                 self.refund_NBE(base_url, account_id, order_id)
             elif bank == 'Kashier':
-                self.refund_Kashier( base_url, account_id, order_id)
+                self.refund_Kashier(base_url, account_id, order_id)
 
             elif bank == 'QNB':
                 self.refund_QNB(base_url, account_id, order_id)

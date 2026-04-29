@@ -134,10 +134,26 @@ class PaymentRequest(http.Controller):
                 order_id = request.env['transaction'].sudo().search([('name','=',data.get('merchantRefNumber'))])
                 if order_id:
                     user_id = order_id.user_id
+                    if data.get('orderStatus') == 'NEW':
+                        state = 'not_processed'
+                    elif data.get('orderStatus') == 'PAID':
+                        state = 'done'
+                    elif data.get('orderStatus') == 'FAILED':
+                        state = 'failed'
+                    elif data.get('orderStatus') == 'CANCELED':
+                        state = 'failed'
+                    elif data.get('orderStatus') == 'REFUNDED':
+                        state = 'refunded'
+                    elif data.get('orderStatus') == 'EXPIRED':
+                        state = 'expired'
+                    elif data.get('orderStatus') == 'PARTIAL_REFUNDED':
+                        state = 'partially_refunded'
+                    else:
+                        state = order_id.state
                     order_id.sudo().write({
                         'fawry_ref': data.get('fawryRefNumber'),
                         'fawry_payment_method': data.get('paymentMethod'),
-                        'state': data.get('orderStatus'),
+                        'state': state,
                         'amount_charged': data.get('paymentAmount'),
                     })
                     order_id.with_user(user_id).message_post(body="Received webhook with data: {}".format(data))
