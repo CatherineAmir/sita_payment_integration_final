@@ -15,7 +15,7 @@
 
                         <button name="get_order_state" string="Order State" type="object" class="btn btn-primary"/>
 
-                        <button name="refund_transaction" string="Refund" type="object" invisible="state != 'done'" groups="sita_payment_integration.create_refund" class="btn btn-warning"/>
+<!--                        <button name="refund_transaction" string="Refund" type="object" invisible="state != 'done'" groups="sita_payment_integration.create_refund" class="btn btn-warning"/>-->
 
 
 
