@@ -124,15 +124,30 @@ class PaymentRequest(http.Controller):
 
         return request.render(template_name, context)
 
-    @http.route('/merchatCallbakPage', type='json', auth="public", methods=['POST'],csrf=False)
+    @http.route('/merchatCallbakPage', type='http', auth="public", methods=['POST'],csrf=False)
     def webhook_response(self, **kw):
         data = json.loads(request.httprequest.data)
         print("webhook data", data)
+        if data:
+            if data.get('merchantRefNumber'):
+                order_id = request.env['transaction'].search([('name','=',data.get('merchantRefNumber'))])
+                if order_id:
+                    order_id.sudo().write({
+                        'fawry_ref': data.get('fawryRefNumber'),
+                        'fawry_payment_method': data.get('paymentMethod'),
+                        'state': data.get('orderStatus'),
+                        'amount_charged': data.get('paymentAmount'),
+                    })
+                    order_id.message_post(body="Received webhook with data: {}".format(data))
+                else:
+                    _logger.error("webhook_response: No order found for merchantRefNumber %s", data.get('merchantRefNumber'))
+                    order_id.message_post(body="webhook_response: No order found for merchantRefNumber: {}".format(data))
+        else:
+            _logger.error("webhook_response called with empty data %",data)
+            # order_id.message_post(body="webhook_response called with empty data: {}".format(data))
         # print("kw", request.content.decode())
         _logger.info("webhook_response called with data: %s", data)
-
-        # Always return 200
-        # return request.make_response("OK", headers=[("Content-Type", "text/plain")])
+        return request.make_response("OK", headers=[("Content-Type", "text/plain")])
 
     @http.route('/success_payment', type='http', auth="none", methods=['GET', 'POST'])
     def success_transaction(self, **kw):
