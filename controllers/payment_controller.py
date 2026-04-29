@@ -3,7 +3,7 @@
 import sys
 from unittest import result
 import logging
-
+import json
 _logger = logging.getLogger(__name__)
 from odoo import http
 from odoo.http import request
@@ -124,11 +124,12 @@ class PaymentRequest(http.Controller):
 
         return request.render(template_name, context)
 
-    @http.route('/merchatCallbakPage', type='http', auth="public", methods=['POST'],csrf=False)
+    @http.route('/merchatCallbakPage', type='json', auth="public", methods=['POST'],csrf=False)
     def webhook_response(self, **kw):
-        print("webhook data", kw)
+        data = json.loads(request.httprequest.data)
+        print("webhook data", data)
         # print("kw", request.content.decode())
-        _logger.info("webhook_response called with data: %s", kw)
+        _logger.info("webhook_response called with data: %s", data)
 
         # Always return 200
         # return request.make_response("OK", headers=[("Content-Type", "text/plain")])
