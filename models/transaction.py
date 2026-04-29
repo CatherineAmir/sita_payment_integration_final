@@ -426,7 +426,7 @@ class Transaction(models.Model):
                 self.get_state_QNB(base_url, account_id, order_id)
 
             elif bank == "Fawry":
-                _logger.info("Fawry integration is not implemented yet for transaction_id %s", order_id.name)
+                _logger.info("in get_order_state for Fawry integration for transaction_id %s", order_id.name)
                 self.get_state_Fawry(base_url, account_id, order_id)
 
 
@@ -619,8 +619,8 @@ class Transaction(models.Model):
         if order_id.refunded_amount <= 0.0:
             raise ValidationError(_("Refund amount must be a positive number Greater than zero"))
         refund_response = payment.refund_order(order_id, order_id.refunded_amount)
-
-        _logger.info("refund_response from Kashier %s", refund_response)
+        order_id.message_post(body="Refund response from Fawry: {}".format(refund_response))
+        _logger.info("refund_response from Fawry %s", refund_response)
         if refund_response:
             # if refund_response['response']['result'] == 'SUCCESS':
             order_state = payment.retrieve_order()

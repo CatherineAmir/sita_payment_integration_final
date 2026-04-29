@@ -109,13 +109,16 @@ class PaymentFawry():
         try:
         # response = requests.get(url, params = json.dumps(data))
             response = requests.post(url, headers=self.create_header(), json=data)
+            _logger.info("Refund response %s", response)
+
             status_response = response.json()
+
             print("Refund response status codeqqq:", status_response)
             print("status_response.get('status_response')",status_response.get('statusCode'))
             if status_response.get('statusCode') in (200, 201):
 
                 try:
-                    print("in return")
+                    _logger.info("Refund response %s", response.json())
                     return response.json()
                 except ValueError:
                     return {

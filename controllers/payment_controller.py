@@ -150,6 +150,9 @@ class PaymentRequest(http.Controller):
                         state = 'partially_refunded'
                     else:
                         state = order_id.state
+                    _logger.info("Updating order %s with state %s", order_id.name, state)
+                    if state in ['refunded', 'partially_refunded']:
+                        return request.make_response("OK", headers=[("Content-Type", "text/plain")])
                     order_id.sudo().write({
                         'fawry_ref': data.get('fawryRefNumber'),
                         'fawry_payment_method': data.get('paymentMethod'),
