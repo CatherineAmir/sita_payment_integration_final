@@ -3,6 +3,10 @@ __pycache__/
 .models/*.pyc
 .wizards/*.pyc
 .reports/*.pyc
+.tools/*.pyc
+.controllers/*.pyc
+
+.controllers/__pycache__/
 .models/__pycache__/
 .wizards/__pycache__/
 .reports/__pycache__/
