@@ -27,8 +27,8 @@ class account_manager(models.Model):
         ('https://api.kashier.io/v3/', 'LIVE KASHIER'),
         ("https://atfawry.fawrystaging.com/","TEST FAWRY"),
         ("https://atfawry.com","LIVE FAWRY"),
-        ("test","Test AAIB"),
-        ("live","Live AAIB")
+        ("https://pay.getpayin.com","Test AAIB"),
+        # ("https://pay.getpayin.com","Live AAIB")
     #     278|THdx2kpYRCLFga87RjK4rEsfhyTuTDI96mjvaXDpba113c37
     ], default='https://test-nbe.gateway.mastercard.com/api/nvp/version/65', required=False, tracking=True)
 

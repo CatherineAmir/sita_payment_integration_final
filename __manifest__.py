@@ -44,6 +44,7 @@
         'templates/home_qnb.xml',
         'templates/home_nbe.xml',
         'templates/home_kashier.xml',
+        'templates/home_aaib.xml',
         'templates/payment_done.xml',
         'templates/payment_pending.xml',
         'templates/payment_failed.xml',

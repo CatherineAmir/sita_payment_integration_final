@@ -4,6 +4,9 @@ import sys
 from unittest import result
 import logging
 import json
+
+
+
 _logger = logging.getLogger(__name__)
 from odoo import http
 from odoo.http import request
@@ -11,6 +14,7 @@ from .payment_class_NBE import Payment
 from .payment_class_qnb import PaymentQNB
 from .kashier_class import Kashier
 from .payment_class_fawry import PaymentFawry
+from .payment_class_AAIB import AAIB
 import requests
 import jinja2
 import os
@@ -74,9 +78,11 @@ class PaymentRequest(http.Controller):
                             return self.redirect_home_QNB(base_url, account_id, order_id, link_type, company_id)
 
                         elif bank == "Fawry":
-                            # todo
+                            print("In Fawry")
                             return self.redirect_home_Fawary(base_url, account_id, order_id, link_type, company_id)
-
+                        elif bank == "AAIB":
+                            print("in AAIB")
+                            return self.redirect_home_AAIB(base_url, account_id, order_id, link_type, company_id)
 
 
                         else:
@@ -130,7 +136,7 @@ class PaymentRequest(http.Controller):
         print("webhook data", data)
 
         if data:
-            if data.get('merchantRefNumber'):
+            if data.get('merchantRefNumber'): # Fawry Weebhook
                 order_id = request.env['transaction'].sudo().search([('name','=',data.get('merchantRefNumber'))])
                 if order_id:
                     user_id = order_id.user_id
@@ -160,8 +166,22 @@ class PaymentRequest(http.Controller):
                         'amount_charged': data.get('paymentAmount'),
                     })
                     order_id.with_user(user_id).message_post(body="Received webhook with data: {}".format(data))
+
                 else:
                     _logger.error("webhook_response: No order found for merchantRefNumber %s", data.get('merchantRefNumber'))
+            elif data.get('invoice_id'):
+                order_id = request.env['transaction'].sudo().search([('invoice_id','=',str( data.get('invoice_id')))])
+                if order_id:
+                    if data.get('invoice_status') == 'PAID':
+                        state = 'done'
+                    else:
+                        state = 'not_processed'
+                    order_id.sudo().write({
+                        'state': state,
+                    })
+                else:
+                    _logger.error("webhook_response: No order found for invoice_id %s", data.get('invoice_id'))
+
         else:
             _logger.error("webhook_response called with empty data %",data)
         _logger.info("webhook_response called with data: %s", data)
@@ -170,13 +190,16 @@ class PaymentRequest(http.Controller):
     @http.route('/success_payment', type='http', auth="none", methods=['GET', 'POST'])
     def success_transaction(self, **kw):
         print("kwwwww", kw)
-        print("kw.get("")", kw.get('merchantRefNumber'))
+        # print("kw.get("")", kw.get('merchantRefNumber'))
         if kw.get('merchantOrderId'):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantOrderId'))],limit=1)
         elif kw.get('merchantRefNumber'):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantRefNumber'))],limit=1)
         elif kw.get("order_id"):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get("order_id"))],limit=1)
+        elif kw.get("invoice_id"):
+            order_id = request.env['transaction'].sudo().search([('invoice_id', '=', str(kw.get("invoice_id")))],limit=1)
+
         else:
             result_indicator = kw.get('resultIndicator')
             order_id = request.env['transaction'].sudo().search([('success_indicator', '=', result_indicator)])
@@ -326,7 +349,6 @@ class PaymentRequest(http.Controller):
 
 
     def redirect_home_Fawary(self,base_url, account_id, order_id, link_type, company_id):
-
         try:
             # valid_till = order_id.link_validity
             payment = PaymentFawry(account_id.integration_username, account_id.integration_password,
@@ -353,3 +375,43 @@ class PaymentRequest(http.Controller):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             _logger.error("fawry  failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
                           order_id.name)
+
+    def redirect_home_AAIB(self,base_url, account_id, order_id, link_type, company_id):
+        try:
+            # valid_till = order_id.link_validity
+            payment = AAIB(account_id.integration_username, account_id.integration_password,
+                                   account_id.secret_key, order_id.name, link_type, base_url)
+            session_dict = payment.authorize(order_id.currency_id.name, order_id.amount, order_id.client_name,
+                                             order_id.client_email)
+            first_name, last_name = order_id.client_name.split(" ", 1)
+            # transaction_vals = {
+            #     'invoice_id': str(session_dict['data']['invoice_id']) if hasattr(session_dict, 'invoice_id') else None,
+            # }
+            print("str(session_dict['data']['invoice_id'])",str(session_dict['data']['invoice_id']))
+            order_id.sudo().write({
+                'invoice_id': str(session_dict['data']['invoice_id']),
+            })
+            print("order_id",order_id.invoice_id)
+            context = {
+                'link_type': link_type,
+                'order_id': order_id.name,
+                'merchant_name': account_id.merchant_id,
+                'amount': order_id.amount,
+                'currency': order_id.currency_id.name,
+                'client_first_name': first_name,
+                'client_last_name': last_name,
+                'client_email': order_id.client_email,
+                'reservation_id': order_id.reservation_id,
+                "company_id": company_id,
+                "account": order_id.account_id,
+                "order": order_id,
+                "session_url": session_dict['data']['checkout_url'],
+                "test": True if 'test' in order_id.account_id.api_url else False,
+            }
+            #
+            return request.render("sita_payment_integration.home_aaib", context)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            _logger.error("AAIB  failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
+                          order_id.name)
+

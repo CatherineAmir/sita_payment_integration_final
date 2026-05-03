@@ -16,7 +16,7 @@
                     <field name="merchant_id"/>
                     <field name="merchant_name"/>
                     <field name="bank_name"/>
-                    <field name="secret_key" invisible="bank_name!='Kashier'"/>
+                    <field name="secret_key" invisible="bank_name not in ['Kashier','AAIB']"/>
                 </list>
             </field>
         </record>
@@ -58,7 +58,7 @@
                             <field name="merchant_id"/>
                             <field name="merchant_name"/>
                             <field name="bank_name"/>
-                             <field name="secret_key" invisible="bank_name!='Kashier'" password="1"/>
+                             <field name="secret_key" invisible="bank_name not in ['Kashier','AAIB']" password="1"/>
                             <field name="bank_logo" widget="image"/>
                             <field name="api_url" readonly="0"/>
                         </group>

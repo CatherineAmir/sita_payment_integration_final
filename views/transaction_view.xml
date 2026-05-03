@@ -61,7 +61,7 @@
                                 <field name="bank_name" invisible="1"/>
                                 <field name="reservation_id" readonly="link_created"/>
                                 <field name="client_name" required="1" readonly="link_created"/>
-                                <field name="client_email" widget="email" readonly="link_created" required="bank_name == 'Kashier'"/>
+                                <field name="client_email" widget="email" readonly="link_created" required="bank_name in ['Kashier','AAIB']"/>
                                 <label for="client_mobile" readonly="link_created"/>
                                 <h2>
                                     <div>
@@ -160,7 +160,7 @@
 
                             <page name="AAIB" string="AAIB Details" invisible="bank_name != 'AAIB'">
                                 <group>
-                                    <field name="invoice_id"/>
+                                    <field name="invoice_id" readonly="1"/>
                                 </group>
                             </page>
                         </notebook>

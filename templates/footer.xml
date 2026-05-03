@@ -51,6 +51,10 @@
                         <img src="/sita_payment_integration/static/src/img/fawry.png"
                              class="rounded" alt="" style="width:100px;height:100px;"/>
                     </t>
+                     <t t-elif="account.bank_name=='AAIB'">
+                        <img src="/sita_payment_integration/static/src/img/AAIB.png"
+                             class="rounded" alt="" style="width:100px;height:100px;"/>
+                    </t>
                     <t t-else="">
                         <img src="/sita_payment_integration/static/src/img/qnb.jpg"
                              class="rounded" alt="" style="width:100px;height:100px;"/>

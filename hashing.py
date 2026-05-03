@@ -168,3 +168,41 @@
 #     )
 #     print("sig", sig)
 
+
+import hmac
+import hashlib
+import base64
+first_name = "youssef"
+last_name = "salah"
+email = "youssefsalahcs@gmail.com"
+order_title = "Reservation"
+order_amount = "100"
+address = ''
+city = ''
+country = ''
+currency = 'EGP'
+hash_key = "wvolJtSv7jn3QVIkK3WxhfLwIPsLgaQlnzXP1j5aJMJFgTnG1ge1eUVob0vf"
+# Step 1: Prepare data
+data = [
+    first_name,
+    last_name,
+    email,
+    order_title,
+    order_amount,
+    address or '',
+    city or '',
+    country or '',
+    currency
+]
+
+# Step 2: Generate signature
+concatenated = ''.join(data)
+signature = base64.b64encode(
+    hmac.new(
+        hash_key.encode('utf-8'),
+        concatenated.encode('utf-8'),
+        hashlib.sha256
+    ).digest()
+).decode('utf-8')
+print("signature:", signature)
+

@@ -112,7 +112,7 @@ class Transaction(models.Model):
     target_transaction_id = fields.Char(string="Target Transaction ID")
     kashier_order_id = fields.Char(string="Kashier Order ID", copy=False, tracking=True)
 
-    invoice_id = fields.Char(string="Invoice Number", tracking=True, help="Added for AAIB Bank as reference number")
+    invoice_id = fields.Char(string="Invoice Number", tracking=True, help="Added for AAIB Bank as reference number",copy=False)
 
 
     fawry_ref = fields.Char(string="Fawry Ref", copy=False, tracking=True)
@@ -121,6 +121,17 @@ class Transaction(models.Model):
 
 
     # kashier_refund_amount_reminder = fields.Float(string='Kashier Refund Amount Reminder')
+
+
+    @api.constrains('client_name','account_id','account_id.bank_name')
+    def check_name_split(self):
+        for rec in self:
+            if rec.client_name and rec.account_id.bank_name == 'AAIB':
+                name_parts = rec.client_name.strip().split()
+                if len(name_parts) < 2:
+                    raise ValidationError(
+                        "Client name must contain both a first and last name separated by a space."
+                    )
 
     @api.constrains('kashier_refund_amount')
     def _check_kashier_refund_amount(self):
@@ -428,8 +439,9 @@ class Transaction(models.Model):
             elif bank == "Fawry":
                 _logger.info("in get_order_state for Fawry integration for transaction_id %s", order_id.name)
                 self.get_state_Fawry(base_url, account_id, order_id)
-
-
+            elif bank == "AAIB":
+                # todo wait reply from bank
+                return
             else:
                 _logger.error("Unknown bank name %s for order id %s", bank, order_id.name)
 
