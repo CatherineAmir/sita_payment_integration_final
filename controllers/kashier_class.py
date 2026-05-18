@@ -63,7 +63,7 @@ class Kashier():
         print("url", url)
         response = requests.post(url, headers=self.create_header(), json=data)
         response_dict = response.json()
-        print("response_dict", response_dict)
+        print("response_dict kashier", response_dict)
         _logger.info("response_dict %s", response_dict)
         try:
             self.session_id = response_dict.get('_id', None)
