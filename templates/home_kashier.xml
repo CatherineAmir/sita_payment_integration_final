@@ -102,18 +102,19 @@
 
                     </table>
 
+                </div>
 
 
                     <div id="embed-target" class="container">
                         <div class="mx-auto">
-                            <iframe style="width: 50vw; height: 100vh; border: none;"
+                            <iframe class="w-100" style="height: 100vh; border: none;"
                                     id="kashier-iframe"
                                     t-att-src="session_url"
                                     allowpaymentrequest="true"
                                     allow="payment"
                             />
                         </div>
-                    </div>
+<!--                    </div>-->
 
                 </div>
             </div>

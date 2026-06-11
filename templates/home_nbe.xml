@@ -16,8 +16,13 @@
 
 
             <t t-if="test">
-            <script src="https://nbe.test.gateway.mastercard.com/static/checkout/checkout.min.js" data-error="errorCallback"/>
-
+<!--            <script src="https://nbe.test.gateway.mastercard.com/static/checkout/checkout.min.js" data-error="errorCallback"/>-->
+<!--            <script src="https://test-nbe.gateway.mastercard.com/checkout/version/85/checkout.js" data-error="errorCallback"/>-->
+<!--            <script src="https://test-nbe.gateway.mastercard.com/static/checkout/checkout.min.js" data-error="errorCallback"/>-->
+             <script src="https://test-nbe.gateway.mastercard.com/static/checkout/checkout.min.js"
+                data-error="error Callback"
+                data-cancel="cancel Callback">
+        </script>
 
             </t>
             <t else="">
@@ -200,7 +205,9 @@
                     <div id="embed-target" class="container"> </div>
             <div class="mx-auto">
                 <input type="button" value="PAY NOW" class="btn btn-info btn-lg" onclick="Checkout.showEmbeddedPage('#embed-target'); this.style.visibility = 'hidden';" />
-            </div>
+                <input type="button" value="Pay with Embedded Page" onclick="Checkout.showEmbeddedPage('#embed-target');" />
+
+            </div>show
                 </div>
             </div>
             <t t-call="sita_payment_integration.footer"/>

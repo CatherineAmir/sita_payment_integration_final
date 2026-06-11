@@ -65,6 +65,7 @@ class PaymentRequest(http.Controller):
                     bank = order_id.account_id.bank_name
                     try:
                         if bank == 'NBE':
+                            print("NBE")
                             return self.redirect_home_NBE(base_url, account_id, order_id, link_type, company_id)
 
 
@@ -251,6 +252,7 @@ class PaymentRequest(http.Controller):
                 "order": order_id,
                 "test": True if 'test' in order_id.account_id.api_url else False,
             }
+            print("context",context)
 
             return request.render("sita_payment_integration.home_nbe", context)
         except Exception as e:
