@@ -263,11 +263,13 @@ class PaymentRequest(http.Controller):
     def redirect_home_Kashier(self, base_url, account_id, order_id, link_type, company_id):
         try:
             valid_till = order_id.link_validity
+            print("valid_till", valid_till)
             payment = Kashier(account_id.integration_username, account_id.integration_password,
                               account_id.secret_key, account_id.merchant_id, account_id.api_url, base_url,
                               session_id=None)
             _logger.info("payment %s",payment)
             expiration_date = (datetime.now() + timedelta(hours=valid_till)).isoformat()
+            print("expiration_date", expiration_date)
 
             if not order_id.session_id:
                 payment.authorize(order_id.currency_id.name, order_id.name, order_id.amount,
@@ -306,7 +308,7 @@ class PaymentRequest(http.Controller):
         except Exception as e:
 
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            _logger.error("bank session NBE failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
+            _logger.error("bank session Kashier failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
                           order_id.name)
 
     def redirect_home_QNB(self, base_url, account_id, order_id, link_type, company_id):
