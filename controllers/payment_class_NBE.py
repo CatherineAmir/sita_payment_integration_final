@@ -5,19 +5,22 @@ from requests.structures import CaseInsensitiveDict
 import urllib
 # host_name='localhost:8069'
 import logging
+
 _logger = logging.getLogger(__name__)
-host_name='sita-pay.com'
+host_name = 'sita-pay.com'
 import logging
+
 logger = logging.getLogger(__name__)
-    
+
+
 class Payment():
-    def __init__(self, apiUsername, apiPassword, merchant,order_id,url,host_name):
+    def __init__(self, apiUsername, apiPassword, merchant, order_id, url, host_name):
         self.apiUsername = apiUsername
         self.apiPassword = apiPassword
 
         self.merchant = merchant
         self.order_id = order_id
-        self.url=url
+        self.url = url
         self.order_currency = None
         self.order_amount = None
         self.checkout_mode = None
@@ -27,8 +30,6 @@ class Payment():
         self.session_version = None
         self.session_update_status = None
         self.host_name = host_name
-
-
 
     def create_header(self):
         headers = CaseInsensitiveDict()
@@ -41,12 +42,10 @@ class Payment():
         self.order_amount = str(order_amount)
 
         payload = 'apiOperation=INITIATE_CHECKOUT&apiPassword=' + \
-                  self.apiPassword + '&apiUsername=' + self.apiUsername + '&merchant=' + self.merchant + '&interaction.operation=PURCHASE&interaction.returnUrl='+self.host_name+'/success_payment/&order.id=' + \
+                  self.apiPassword + '&apiUsername=' + self.apiUsername + '&merchant=' + self.merchant + '&interaction.operation=PURCHASE&interaction.returnUrl=' + self.host_name + '/success_payment/&order.id=' + \
                   self.order_id + '&order.amount=' + self.order_amount + '&order.currency=' + self.order_currency
 
-
         response = requests.post(self.url, headers=self.create_header(), data=payload)
-
 
         response_dict = self.response_handler(response.content.decode())
         print("response_dict", response_dict)
@@ -57,16 +56,14 @@ class Payment():
             self.session_id = response_dict['session.id']
             self.session_version = response_dict['session.version']
 
-
             self.success_indicator = response_dict['successIndicator']
 
             self.session_update_status = response_dict['session.updateStatus']
         except Exception as e:
-            _logger.error("Error in authorize %s",e)
+            _logger.error("Error in authorize %s", e)
 
             pass
         return response_dict
-
 
     def response_handler(self, content):
         result = urllib.parse.parse_qs(content)
@@ -74,27 +71,23 @@ class Payment():
             result[k] = result[k][0]
         return result
 
-
-
-
     def retrieve_order(self):
 
         payload = 'apiOperation=RETRIEVE_ORDER&apiPassword=' + self.apiPassword + '&apiUsername=' + self.apiUsername + '&merchant=' + self.merchant + '&order.id=' + self.order_id
         try:
             response = requests.post(self.url, headers=self.create_header(), data=payload)
         except Exception as e:
-            _logger.error('HTTPSConnection Pool Connection pool %s',e)
+            _logger.error('HTTPSConnection Pool Connection pool %s', e)
 
 
 
         else:
             response_dict = self.response_handler(response.content.decode())
 
-
             return response_dict
         return False
 
-    def refund_order(self, order,refunded_amount):
+    def refund_order(self, order, refunded_amount):
 
         payload = ('apiOperation=REFUND&apiPassword=' + \
                    self.apiPassword + '&apiUsername=' + self.apiUsername + '&merchant=' + self.merchant +

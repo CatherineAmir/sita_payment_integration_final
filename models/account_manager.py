@@ -19,8 +19,11 @@ class account_manager(models.Model):
     bank_name = fields.Selection(string='Bank Name', required=True, selection=[('NBE', 'NBE'), ("QNB", "QNB"),("Kashier","Kashier"),("Fawry","Fawry"),("AAIB","AAIB")], tracking=True)
     bank_logo = fields.Binary(string='Bank Logo', required=False)
     api_url = fields.Selection(selection=[
+
         ('https://test-nbe.gateway.mastercard.com/api/nvp/version/65', 'Test NBE'),
         ('https://nbe.gateway.mastercard.com/api/nvp/version/65', 'LIVE NBE'),
+        ("https://test-nbe.gateway.mastercard.com/api/rest/version/100","Test NBE v100"),
+        ("https://nbe.gateway.mastercard.com/api/rest/version/100","LIVE NBE v100"),
         ('https://qnbalahli.test.gateway.mastercard.com/', 'TEST QNB'),
         ('https://qnbalahli.gateway.mastercard.com/', 'LIVE QNB'),
         ('https://test-api.kashier.io/v3/', 'TEST KASHIER'),
@@ -30,7 +33,7 @@ class account_manager(models.Model):
         ("https://pay.getpayin.com","Test AAIB"),
         # ("https://pay.getpayin.com","Live AAIB")
     #     278|THdx2kpYRCLFga87RjK4rEsfhyTuTDI96mjvaXDpba113c37
-    ], default='https://test-nbe.gateway.mastercard.com/api/nvp/version/65', required=False, tracking=True)
+    ], default='https://test-nbe.gateway.mastercard.com/api/nvp/version/100', required=False, tracking=True)
 
     secret_key=fields.Char(string='Secret Key')
     active=fields.Boolean(string='Active', default=True, tracking=True)

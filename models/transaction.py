@@ -7,6 +7,7 @@ from datetime import timedelta
 
 from ..controllers.kashier_class import Kashier
 from ..controllers.payment_class_NBE import Payment
+from ..controllers.payment_class_NBE_REST import Payment_REST
 from ..controllers.payment_class_qnb import PaymentQNB
 from ..controllers.payment_class_fawry import PaymentFawry
 from odoo.exceptions import ValidationError
@@ -219,10 +220,17 @@ class Transaction(models.Model):
 
     def get_state_NBE(self, base_url, account_id, order_id):
         try:
-            payment = Payment(account_id.integration_username, account_id.integration_password,
+            if 'rest' in account_id.api_url:
+                payment = Payment_REST(account_id.integration_username, account_id.integration_password,
+                                  account_id.merchant_id,
+                                  order_id.name, account_id.api_url, base_url)
+                order_state = payment.retrieve_order()
+            else:
+                payment = Payment(account_id.integration_username, account_id.integration_password,
                               account_id.merchant_id,
                               order_id.name, account_id.api_url, base_url)
-            order_state = payment.retrieve_order()
+                order_state = payment.retrieve_order()
+            print("payment.retrieve_order()",payment.retrieve_order())
             if order_state["result"] == "ERROR":
                 raise ValidationError(_("Error in get order state : %s", order_state["error.explanation"]))
             flag = 0

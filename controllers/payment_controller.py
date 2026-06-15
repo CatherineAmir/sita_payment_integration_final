@@ -11,6 +11,7 @@ _logger = logging.getLogger(__name__)
 from odoo import http
 from odoo.http import request
 from .payment_class_NBE import Payment
+from .payment_class_NBE_REST import Payment_REST
 from .payment_class_qnb import PaymentQNB
 from .kashier_class import Kashier
 from .payment_class_fawry import PaymentFawry
@@ -190,7 +191,7 @@ class PaymentRequest(http.Controller):
 
     @http.route('/success_payment', type='http', auth="none", methods=['GET', 'POST'])
     def success_transaction(self, **kw):
-        print("kwwwww", kw)
+        print("kwwwww success", kw)
         # print("kw.get("")", kw.get('merchantRefNumber'))
         if kw.get('merchantOrderId'):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantOrderId'))],limit=1)
@@ -202,10 +203,13 @@ class PaymentRequest(http.Controller):
             order_id = request.env['transaction'].sudo().search([('invoice_id', '=', str(kw.get("invoice_id")))],limit=1)
 
         else:
-            result_indicator = kw.get('resultIndicator')
-            order_id = request.env['transaction'].sudo().search([('success_indicator', '=', result_indicator)])
-        base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        print("order_id",order_id)
+            result_indicator = kw.get('resultIndicator','')
+            if result_indicator:
+                order_id = request.env['transaction'].sudo().search([('success_indicator', '=', result_indicator)])
+                base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                print("order_id",order_id)
+            else:
+                order_id = None
         if order_id:
             context = {
                 'order_id': order_id,
@@ -222,9 +226,22 @@ class PaymentRequest(http.Controller):
     def redirect_home_NBE(self, base_url, account_id, order_id, link_type, company_id):
         try:
             valid_till = order_id.link_validity
-            payment = Payment(account_id.integration_username, account_id.integration_password,
+            if 'rest' in account_id.api_url:
+                print("rest")
+                # "rest v 100"
+                payment=Payment_REST(account_id.integration_username, account_id.integration_password,
                               account_id.merchant_id, order_id.name, account_id.api_url, base_url)
-            session_dict = payment.authorize(order_id.currency_id.name, order_id.name, order_id.amount)
+                session_dict=payment.authorize(order_id.currency_id.name, order_id.name, order_id.amount)
+                template_name="sita_payment_integration.home_nbe_rest"
+            else:
+                # "nvp v 65"
+
+                payment = Payment(account_id.integration_username, account_id.integration_password,
+                              account_id.merchant_id, order_id.name, account_id.api_url, base_url)
+                session_dict = payment.authorize(order_id.currency_id.name, order_id.name, order_id.amount)
+                template_name ="sita_payment_integration.home_nbe"
+
+
             transaction_vals = {
                 'session_id': payment.session_id if hasattr(payment, 'session_id') else None,
                 'session_version': payment.session_version if hasattr(payment,
@@ -254,7 +271,7 @@ class PaymentRequest(http.Controller):
             }
             print("context",context)
 
-            return request.render("sita_payment_integration.home_nbe", context)
+            return request.render(template_name, context)
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             _logger.error("bank session NBE failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
@@ -263,13 +280,13 @@ class PaymentRequest(http.Controller):
     def redirect_home_Kashier(self, base_url, account_id, order_id, link_type, company_id):
         try:
             valid_till = order_id.link_validity
-            print("valid_till", valid_till)
+
             payment = Kashier(account_id.integration_username, account_id.integration_password,
                               account_id.secret_key, account_id.merchant_id, account_id.api_url, base_url,
                               session_id=None)
             _logger.info("payment %s",payment)
             expiration_date = (datetime.now() + timedelta(hours=valid_till)).isoformat()
-            print("expiration_date", expiration_date)
+
 
             if not order_id.session_id:
                 payment.authorize(order_id.currency_id.name, order_id.name, order_id.amount,
