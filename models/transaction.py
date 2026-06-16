@@ -504,10 +504,20 @@ class Transaction(models.Model):
 
     def refund_NBE(self, base_url, account_id, order_id):
         try:
-            payment = Payment(account_id.integration_username, account_id.integration_password,
-                              account_id.merchant_id,
-                              order_id.name, account_id.api_url, base_url)
-            refund_response = payment.refund_order(order_id, order_id.refunded_amount)
+            if order_id.refunded_amount <= 0.0:
+                raise ValidationError(_("Order refunded amount must be a positive number Greater than zero"))
+            if 'rest' in account_id.api_url:
+                payment = Payment_REST(account_id.integration_username, account_id.integration_password,account_id.merchant_id,
+                order_id.name, account_id.api_url, base_url)
+
+                refund_response = payment.refund_order(order_id, order_id.refunded_amount)
+
+            else:
+
+                payment = Payment(account_id.integration_username, account_id.integration_password,
+                                  account_id.merchant_id,
+                                  order_id.name, account_id.api_url, base_url)
+                refund_response = payment.refund_order(order_id, order_id.refunded_amount)
 
             if refund_response:
                 if 'error' in refund_response:

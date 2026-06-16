@@ -132,7 +132,7 @@
                                 </td>
 
                                 <td>
-                                    <t t-esc="amount"/>
+                                      <t t-esc="'{:,.2f}'.format(amount)"/>
                                 </td>
                             </tr>
 
