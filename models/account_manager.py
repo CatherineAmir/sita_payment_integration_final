@@ -33,7 +33,7 @@ class account_manager(models.Model):
         ("https://pay.getpayin.com","Test AAIB"),
         # ("https://pay.getpayin.com","Live AAIB")
     #     278|THdx2kpYRCLFga87RjK4rEsfhyTuTDI96mjvaXDpba113c37
-    ], default='https://test-nbe.gateway.mastercard.com/api/nvp/version/100', required=False, tracking=True)
+    ], default='https://test-nbe.gateway.mastercard.com/api/nvp/version/65', required=False, tracking=True)
 
     secret_key=fields.Char(string='Secret Key')
     active=fields.Boolean(string='Active', default=True, tracking=True)
