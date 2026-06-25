@@ -1,6 +1,6 @@
 import sys
 from email.policy import default
-
+import time
 from odoo import api, fields, models, _
 from datetime import datetime
 from datetime import timedelta
@@ -10,6 +10,7 @@ from ..controllers.payment_class_NBE import Payment
 from ..controllers.payment_class_NBE_REST import Payment_REST
 from ..controllers.payment_class_qnb import PaymentQNB
 from ..controllers.payment_class_fawry import PaymentFawry
+from ..controllers.payment_class_misr import PaymentMisr
 from odoo.exceptions import ValidationError
 import urllib.parse as parse
 import logging
@@ -124,6 +125,10 @@ class Transaction(models.Model):
     # kashier_refund_amount_reminder = fields.Float(string='Kashier Refund Amount Reminder')
 
 
+    # bank misr filelds
+    transaction_id = fields.Char(string="Transaction ID", copy=False, tracking=True)
+    response_update = fields.Text(string="Response Update", copy=False, tracking=True)
+    client_ref_info = fields.Char(string="Client Reference Info", copy=False, tracking=True)
     @api.constrains('client_name','account_id','account_id.bank_name')
     def check_name_split(self):
         for rec in self:
@@ -381,6 +386,44 @@ class Transaction(models.Model):
                           order_id.name)
 
 
+    def get_state_Misr(self, base_url, account_id, order_id):
+        try:
+            payment = PaymentMisr(account_id.integration_username, account_id.integration_password,
+                                   account_id.merchant_id, order_id.name, account_id.api_url, base_url,account_id.secret_key)
+            print("order_id.transaction_id",order_id.transaction_id)
+            print("api_url",account_id.api_url)
+            order_state = payment.retrieve_order(order_id.transaction_id,account_id.api_url)
+            print("order_state", order_state)
+            if not order_state or 'applicationInformation' not in order_state:
+                _logger.error(
+                    "Could not retrieve Misr order state for transaction %s",
+                    order_id.transaction_id
+                )
+                order_id.sudo().write({'state': 'not_processed'})
+                return True
+            # print("order_state['applicationInformation']['status']",order_state['applicationInformation']['status'])
+            if order_state['applicationInformation']['status'] in ['PENDING','TRANSMITTED']:
+                payment_status = 'done'
+            elif order_state['applicationInformation']['status'] =='FAILED':
+                payment_status = 'failed'
+            else:
+                payment_status = 'not_processed'
+
+            _logger.info("payment_status in MISR %s", payment_status)
+            payment_details = {
+                'response_update': order_state,
+                'state': payment_status,
+                'payment_status':order_state['applicationInformation']['status']
+            }
+            print("payment_details", payment_details)
+            order_id.sudo().write(payment_details)
+
+        except Exception as e:
+            _logger.error("Exception in Get Misr Order State %s ", e)
+
+        return True
+
+
     def get_state_Fawry(self, base_url, account_id, order_id):
         payment = PaymentFawry(account_id.integration_username, account_id.integration_password,
                                account_id.merchant_id, order_id.name, account_id.api_url, base_url)
@@ -450,6 +493,8 @@ class Transaction(models.Model):
             elif bank == "AAIB":
                 # todo wait reply from bank
                 return
+            elif bank == "Misr":
+                self.get_state_Misr(base_url, account_id, order_id)
             else:
                 _logger.error("Unknown bank name %s for order id %s", bank, order_id.name)
 

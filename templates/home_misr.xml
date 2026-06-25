@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="home_misr" name="Home Bank Misr">
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+              crossorigin="anonymous"/>
+        <link rel="stylesheet" href="/sita_payment_integration/static/src/style.css"/>
+        <link rel="stylesheet" href="/sita_payment_integration/static/src/xml/page_css.css"/>
+        <!-- Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+                crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+                integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+                crossorigin="anonymous"></script>
+
+        <!--
+            Step 1: Load CyberSource JS library with integrity check.
+            Both values extracted from JWT payload → ctx[0].data.clientLibrary / clientLibraryIntegrity
+        -->
+        <script t-att-src="client_library_url"
+                t-att-integrity="client_library_integrity"
+                crossorigin="anonymous"></script>
+
+        <div class="container my-3">
+            <t t-call="sita_payment_integration.header"/>
+
+            <!-- Card Logos -->
+            <div class="container">
+                <h3 class="text-center fs-3 my-3 text-info">Pay with</h3>
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-auto">
+                        <img src="/sita_payment_integration/static/src/img/MasterCard Acceptance Sign.png"
+                             class="rounded" alt="" style="width:50px;height:50px;"/>
+                    </div>
+                    <div class="col-auto">
+                        <img src="/sita_payment_integration/static/src/img/Visa Acceptance Sign.png"
+                             class="rounded" alt="" style="width:50px;height:50px;"/>
+                    </div>
+                    <div class="col-auto">
+                        <img src="/sita_payment_integration/static/src/img/meeza_cards_logo.png"
+                             class="rounded" alt="" style="width:50px;height:50px;"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary Table -->
+            <div class="row my-3">
+                <table class="table table-borderless table-lg table-striped">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Client Name</strong>
+                            </td>
+                            <td>
+                                <t t-esc="client_name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Order ID</strong>
+                            </td>
+                            <td>
+                                <t t-esc="order_id"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Currency</strong>
+                            </td>
+                            <td>
+                                <t t-esc="currency"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Amount</strong>
+                            </td>
+                            <td>
+                                <t t-esc="'{:,.2f}'.format(amount)"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Unified Checkout Section -->
+
+            <div class="row my-3">
+                <div class="col-12">
+
+                    <!-- Error Message -->
+                    <div id="checkout-error" class="alert alert-danger" style="display:none;"></div>
+
+                    <!-- Step 2: Hidden input holds the session JWT -->
+                    <input type="hidden" id="sessionJWT" name="sessionJWT" t-att-value="jwt_token"/>
+
+                    <!-- Step 3: Container where checkout.mount() renders the payment buttons -->
+                    <div id="payment-buttons"></div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <t t-call="sita_payment_integration.footer"/>
+
+
+        <!-- Hidden form: submits result JWT to your backend -->
+        <form id="authForm" method="post" action="/success_payment">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <input type="hidden" id="transientToken" name="transient_token"/>
+            <input type="hidden" name="order_id" t-att-value="order_id"/>
+        </form>
+
+        <!-- Step 4: Initialize Unified Checkout — Embedded Component -->
+<script type="text/javascript">
+    const sessionJWT = document.getElementById("sessionJWT").value;
+
+    async function launchCheckout() {
+        let client;
+        let checkout;
+        try {
+            // Step 4A: Initialize with session JWT
+            client = await VAS.UnifiedCheckout(sessionJWT);
+
+            // Step 4B: Create checkout — EMBEDDED mode (not sidebar)
+            checkout = await client.createCheckout({
+                containers: {
+                    payment: '#payment-buttons'  // ← embed here
+                },
+                accept: {
+                    unifiedPayments: false        // ← no sidebar
+                }
+            });
+
+            // Step 4C: Mount into container div
+            const result = await checkout.mount('#payment-buttons');
+
+            // Step 4D: Submit to backend
+            document.getElementById('transientToken').value = result;
+            document.getElementById('authForm').submit();
+
+        } catch (error) {
+            console.error('Unified Checkout error:', error);
+            var errorDiv = document.getElementById('checkout-error');
+            if (error.name === 'UnifiedCheckoutError') {
+                errorDiv.textContent = 'Payment error: ' + error.reason + ' - ' + error.message;
+            } else {
+                errorDiv.textContent = 'Payment failed. Please try again.';
+            }
+            errorDiv.style.display = 'block';
+
+        } finally {
+            if (checkout) { checkout.destroy(); }
+            if (client)   { client.destroy(); }
+        }
+    }
+
+    launchCheckout();
+</script>
+    </template>
+</odoo>

@@ -5,7 +5,7 @@ from unittest import result
 import logging
 import json
 
-
+import base64
 
 _logger = logging.getLogger(__name__)
 from odoo import http
@@ -16,6 +16,7 @@ from .payment_class_qnb import PaymentQNB
 from .kashier_class import Kashier
 from .payment_class_fawry import PaymentFawry
 from .payment_class_AAIB import AAIB
+from .payment_class_misr import PaymentMisr
 import requests
 import jinja2
 import os
@@ -85,7 +86,8 @@ class PaymentRequest(http.Controller):
                         elif bank == "AAIB":
                             print("in AAIB")
                             return self.redirect_home_AAIB(base_url, account_id, order_id, link_type, company_id)
-
+                        elif bank == 'Misr':
+                            return self.redirect_home_Misr(base_url, account_id, order_id, link_type, company_id)
 
                         else:
                             _logger.info("Unknown bank type for order_id %s", order_id.name)
@@ -189,12 +191,25 @@ class PaymentRequest(http.Controller):
         _logger.info("webhook_response called with data: %s", data)
         return request.make_response("OK", headers=[("Content-Type", "text/plain")])
 
-    @http.route('/success_payment', type='http', auth="none", methods=['GET', 'POST'])
+    @http.route('/success_payment', type='http', auth="none", methods=['POST'])
     def success_transaction(self, **kw):
         print("kwwwww success", kw)
+
         # print("kw.get("")", kw.get('merchantRefNumber'))
         if kw.get('merchantOrderId'):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantOrderId'))],limit=1)
+        elif kw.get('transient_token'):
+
+            decoded_data = self.extract_client_library(kw.get('transient_token'))
+            print("kw.get('merchantOrderId')[0]['clientReferenceInformation'])",decoded_data['details']['clientReferenceInformation']['code'])
+            order_id = request.env['transaction'].sudo().search([('client_ref_info', '=', decoded_data['details']['clientReferenceInformation']['code'])], limit=1)
+            if order_id:
+                print("decoded_data['id']",decoded_data['id'])
+                order_id.sudo().write({
+                    'transaction_id': decoded_data['id']
+                })
+            print("decoded_data",decoded_data)
+            print("order_id",order_id)
         elif kw.get('merchantRefNumber'):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantRefNumber'))],limit=1)
         elif kw.get("order_id"):
@@ -367,6 +382,52 @@ class PaymentRequest(http.Controller):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             _logger.error("bank session QNB failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
                           order_id.name)
+
+    def extract_client_library(self,jwt_token: str) -> str:
+        """Extract the clientLibrary URL and clientLibraryIntegrity  from the CyberSource JWT payload."""
+        parts = jwt_token.split('.')
+        # Fix base64 padding
+        payload_b64 = parts[1]
+        payload_b64 += '=' * (4 - len(payload_b64) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+        print("payload",payload)
+        return payload
+    def redirect_home_Misr(self,base_url, account_id, order_id, link_type, company_id):
+        try:
+            # valid_till = order_id.link_validity
+            payment = PaymentMisr(account_id.integration_username, account_id.integration_password,
+                              account_id.merchant_id, order_id.name, link_type, base_url,account_id.secret_key)
+            session_dict = payment.authorize(order_id.currency_id.name, order_id.amount,account_id.api_url)
+            print("session_dict",session_dict)
+
+            payload = self.extract_client_library(session_dict)
+            print("payload['ctx'][0]['data']['clientReferenceInformation']['code']",payload['ctx'][0]['data']['clientReferenceInformation']['code'])
+            order_id.sudo().write({
+                "client_ref_info": payload['ctx'][0]['data']['clientReferenceInformation']['code']
+            })
+            context = {
+                # 'link_type': link_type,
+                'order_id': order_id.name,
+                'merchant_name': account_id.merchant_id,
+                'amount': order_id.amount,
+                'currency': order_id.currency_id.name,
+                'client_name': order_id.client_name,
+                'client_email': order_id.client_email,
+                # 'reservation_id': order_id.reservation_id,
+                "company_id": company_id,
+                "account": order_id.account_id,
+                "order": order_id,
+                "jwt_token": session_dict,
+                'client_library_url':  payload['ctx'][0]['data']['clientLibrary'],
+                'client_library_integrity': payload['ctx'][0]['data']['clientLibraryIntegrity'],
+            }
+
+            return request.render("sita_payment_integration.home_misr", context)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            _logger.error("Bank Misr  failed %s,%s,%s,%s,%s for order_id %s", e, exc_type, exc_obj, exc_tb,
+                          order_id.name)
+
 
 
     def redirect_home_Fawary(self,base_url, account_id, order_id, link_type, company_id):

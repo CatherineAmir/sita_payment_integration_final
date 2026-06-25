@@ -16,7 +16,7 @@ class account_manager(models.Model):
     integration_password=fields.Char(string='API User Password',required=True,tracking=True)
     merchant_name=fields.Char(string='Merchant Name',required=True,tracking=True)
     merchant_id=fields.Char(string='Merchant ID',required=True,tracking=True)
-    bank_name = fields.Selection(string='Bank Name', required=True, selection=[('NBE', 'NBE'), ("QNB", "QNB"),("Kashier","Kashier"),("Fawry","Fawry"),("AAIB","AAIB")], tracking=True)
+    bank_name = fields.Selection(string='Bank Name', required=True, selection=[('NBE', 'NBE'), ("QNB", "QNB"),("Kashier","Kashier"),("Fawry","Fawry"),("AAIB","AAIB"),("Misr","Misr")], tracking=True)
     bank_logo = fields.Binary(string='Bank Logo', required=False)
     api_url = fields.Selection(selection=[
 
@@ -31,6 +31,7 @@ class account_manager(models.Model):
         ("https://atfawry.fawrystaging.com/","TEST FAWRY"),
         ("https://atfawry.com","LIVE FAWRY"),
         ("https://pay.getpayin.com","Test AAIB"),
+        ("https://apitest.cybersource.com","TEST Misr"),
         # ("https://pay.getpayin.com","Live AAIB")
     #     278|THdx2kpYRCLFga87RjK4rEsfhyTuTDI96mjvaXDpba113c37
     ], default='https://test-nbe.gateway.mastercard.com/api/nvp/version/65', required=False, tracking=True)

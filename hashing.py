@@ -169,40 +169,66 @@
 #     print("sig", sig)
 
 
-import hmac
-import hashlib
-import base64
-first_name = "youssef"
-last_name = "salah"
-email = "youssefsalahcs@gmail.com"
-order_title = "Reservation"
-order_amount = "100"
-address = ''
-city = ''
-country = ''
-currency = 'EGP'
-hash_key = "wvolJtSv7jn3QVIkK3WxhfLwIPsLgaQlnzXP1j5aJMJFgTnG1ge1eUVob0vf"
-# Step 1: Prepare data
-data = [
-    first_name,
-    last_name,
-    email,
-    order_title,
-    order_amount,
-    address or '',
-    city or '',
-    country or '',
-    currency
-]
+# import hmac
+# import hashlib
+# import base64
+# first_name = "youssef"
+# last_name = "salah"
+# email = "youssefsalahcs@gmail.com"
+# order_title = "Reservation"
+# order_amount = "100"
+# address = ''
+# city = ''
+# country = ''
+# currency = 'EGP'
+# hash_key = "wvolJtSv7jn3QVIkK3WxhfLwIPsLgaQlnzXP1j5aJMJFgTnG1ge1eUVob0vf"
+# # Step 1: Prepare data
+# data = [
+#     first_name,
+#     last_name,
+#     email,
+#     order_title,
+#     order_amount,
+#     address or '',
+#     city or '',
+#     country or '',
+#     currency
+# ]
+#
+# # Step 2: Generate signature
+# concatenated = ''.join(data)
+# signature = base64.b64encode(
+#     hmac.new(
+#         hash_key.encode('utf-8'),
+#         concatenated.encode('utf-8'),
+#         hashlib.sha256
+#     ).digest()
+# ).decode('utf-8')
+# print("signature:", signature)
 
-# Step 2: Generate signature
-concatenated = ''.join(data)
-signature = base64.b64encode(
-    hmac.new(
-        hash_key.encode('utf-8'),
-        concatenated.encode('utf-8'),
-        hashlib.sha256
-    ).digest()
-).decode('utf-8')
-print("signature:", signature)
+import hashlib, base64, json
 
+def compute_digest(body: str) -> str:
+    return "SHA-256=" + base64.b64encode(hashlib.sha256(body.encode("utf-8")).digest()).decode("utf-8")
+
+# Paste your EXACT body here
+data = {
+    "targetOrigins": ["https://c2f3-41-42-27-118.ngrok-free.app"],
+    "country": "EG",
+    "locale": "ar_EG",
+    "data": {
+        "orderInformation": {
+            "amountDetails": {
+                "totalAmount": "200.00",
+                "currency": "EGP"
+            }
+        }
+    }
+}
+
+body_str = json.dumps(data)
+
+print("Exact body being hashed:")
+print(repr(body_str))   # ← shows EVERY character including spaces
+print()
+print("Digest:", compute_digest(body_str))

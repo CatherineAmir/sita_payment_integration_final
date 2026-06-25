@@ -55,7 +55,8 @@
         'templates/session_failed.xml',
         'templates/link_expire.xml',
         'templates/home_fawry.xml',
-    ],
+		'templates/home_misr.xml',
+],
     # only loaded in demonstration mode
     'demo': [
         # 'demo/demo.xml',
