@@ -111,9 +111,9 @@ class PaymentRequest(http.Controller):
             return self.handel_other_states(context)
 
     def handel_other_states(self, context):
-        print("context", context)
+
         order_id = context.get('order_id')
-        print("order_id.state", order_id.state)
+
         if order_id.state == 'done':
             template_name = "sita_payment_integration.payment_done"
 
@@ -137,7 +137,8 @@ class PaymentRequest(http.Controller):
     @http.route('/merchatCallbakPage', type='http', auth="public", methods=['POST'],csrf=False)
     def webhook_response(self, **kw):
         data = json.loads(request.httprequest.data)
-        print("webhook data", data)
+
+        _logger.info("webhook data received %s", data)
 
         if data:
             if data.get('merchantRefNumber'): # Fawry Weebhook
@@ -191,9 +192,9 @@ class PaymentRequest(http.Controller):
         _logger.info("webhook_response called with data: %s", data)
         return request.make_response("OK", headers=[("Content-Type", "text/plain")])
 
-    @http.route('/success_payment', type='http', auth="none", methods=['POST'])
+    @http.route('/Account', type='http', auth="none", methods=['POST'])
     def success_transaction(self, **kw):
-        print("kwwwww success", kw)
+        _logger.info("success_payment called with data: %s", kw)
 
         # print("kw.get("")", kw.get('merchantRefNumber'))
         if kw.get('merchantOrderId'):
@@ -201,15 +202,15 @@ class PaymentRequest(http.Controller):
         elif kw.get('transient_token'):
 
             decoded_data = self.extract_client_library(kw.get('transient_token'))
-            print("kw.get('merchantOrderId')[0]['clientReferenceInformation'])",decoded_data['details']['clientReferenceInformation']['code'])
+            _logger.info("Decoded data: %s", decoded_data)
             order_id = request.env['transaction'].sudo().search([('client_ref_info', '=', decoded_data['details']['clientReferenceInformation']['code'])], limit=1)
             if order_id:
-                print("decoded_data['id']",decoded_data['id'])
+                _logger.info("Decoded data ID: %s", decoded_data['id'])
                 order_id.sudo().write({
                     'transaction_id': decoded_data['id']
                 })
-            print("decoded_data",decoded_data)
-            print("order_id",order_id)
+            # print("decoded_data",decoded_data)
+            _logger.info("order_id: %s", order_id)
         elif kw.get('merchantRefNumber'):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantRefNumber'))],limit=1)
         elif kw.get("order_id"):
@@ -222,7 +223,8 @@ class PaymentRequest(http.Controller):
             if result_indicator:
                 order_id = request.env['transaction'].sudo().search([('success_indicator', '=', result_indicator)])
                 base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
-                print("order_id",order_id)
+                # print("order_id",order_id)
+                _logger.info("order_id: %s", order_id)
             else:
                 order_id = None
         if order_id:
@@ -236,6 +238,7 @@ class PaymentRequest(http.Controller):
             # print("context", context)
             order_id.sudo().get_order_state()
             # print("order_id after update state", order_id.state)
+            _logger.info("order_id in success transaction: %s", order_id)
             return self.handel_other_states(context)
 
     def redirect_home_NBE(self, base_url, account_id, order_id, link_type, company_id):

@@ -62,8 +62,9 @@ class AAIB():
         url = self.url + '/api/integration/init'
         try:
             response = requests.post(url, headers=self.create_header(), json=data)
+            _logger.info("response %s", response)
             response_dict = response.json()
-            print("response_dict", response_dict)
+            _logger.info("response_dict", response_dict)
             return response_dict
         except requests.exceptions.RequestException as e:
             _logger.error('HTTPSConnection Pool Connection pool %s', e)
