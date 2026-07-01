@@ -192,7 +192,7 @@ class PaymentRequest(http.Controller):
         _logger.info("webhook_response called with data: %s", data)
         return request.make_response("OK", headers=[("Content-Type", "text/plain")])
 
-    @http.route('/Account', type='http', auth="none", methods=['POST'])
+    @http.route('/success_payment', type='http', auth="none", methods=['POST','GET'])
     def success_transaction(self, **kw):
         _logger.info("success_payment called with data: %s", kw)
 
