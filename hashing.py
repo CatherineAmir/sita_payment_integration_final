@@ -1,4 +1,7 @@
-# import hashlib
+import hmac
+import hashlib
+import base64
+
 # def generate_signature_refund(
 #     merchant_code: str,
 #     ref_num: str,
@@ -206,29 +209,51 @@
 # ).decode('utf-8')
 # print("signature:", signature)
 
-import hashlib, base64, json
+# import hashlib, base64, json
+#
+# def compute_digest(body: str) -> str:
+#     return "SHA-256=" + base64.b64encode(hashlib.sha256(body.encode("utf-8")).digest()).decode("utf-8")
+#
+# # Paste your EXACT body here
+# data = {
+#     "targetOrigins": ["https://c2f3-41-42-27-118.ngrok-free.app"],
+#     "country": "EG",
+#     "locale": "ar_EG",
+#     "data": {
+#         "orderInformation": {
+#             "amountDetails": {
+#                 "totalAmount": "200.00",
+#                 "currency": "EGP"
+#             }
+#         }
+#     }
+# }
+#
+# body_str = json.dumps(data)
+#
+# print("Exact body being hashed:")
+# print(repr(body_str))   # ← shows EVERY character including spaces
+# print()
+# print("Digest:", compute_digest(body_str))
 
-def compute_digest(body: str) -> str:
-    return "SHA-256=" + base64.b64encode(hashlib.sha256(body.encode("utf-8")).digest()).decode("utf-8")
 
-# Paste your EXACT body here
-data = {
-    "targetOrigins": ["https://c2f3-41-42-27-118.ngrok-free.app"],
-    "country": "EG",
-    "locale": "ar_EG",
-    "data": {
-        "orderInformation": {
-            "amountDetails": {
-                "totalAmount": "200.00",
-                "currency": "EGP"
-            }
-        }
-    }
-}
+data_hashed = [
+    "youssef",
+    "salah",
+    "youssefsalahcs@gmail.com",
+    "Reservation",
+    "1",
+    "EGP",
+]
+concatenated = ''.join(data_hashed)
+hash_key = "9rmNNqxNxaZREzNQDDl48Ygjn7zxzjl44D3Ws9Zyn5HgWYRgNLBv7ZZNFApl"
+signature = base64.b64encode(
+    hmac.new(
+        hash_key.encode('utf-8'),
+        concatenated.encode('utf-8'),
+        hashlib.sha256
+    ).digest()
+).decode('utf-8')
 
-body_str = json.dumps(data)
+print(signature)
 
-print("Exact body being hashed:")
-print(repr(body_str))   # ← shows EVERY character including spaces
-print()
-print("Digest:", compute_digest(body_str))
