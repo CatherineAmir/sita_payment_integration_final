@@ -129,6 +129,8 @@ class Transaction(models.Model):
     transaction_id = fields.Char(string="Transaction ID", copy=False, tracking=True)
     response_update = fields.Text(string="Response Update", copy=False, tracking=True)
     client_ref_info = fields.Char(string="Client Reference Info", copy=False, tracking=True)
+    jwt_session = fields.Char(string="JWT Session", copy=False, tracking=True)
+    session_expired = fields.Char(string="Session Expired", copy=False, tracking=True)
     @api.constrains('client_name','account_id','account_id.bank_name')
     def check_name_split(self):
         for rec in self:

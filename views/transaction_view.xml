@@ -165,6 +165,8 @@
                             </page>
                             <page name="bank_misr" string="Bank Misr" invisible="bank_name != 'Misr'">
                                 <group>
+                                    <field name="jwt_session" readonly="1"/>
+                                    <field name="session_expired" readonly="1"/>
                                     <field name="transaction_id" readonly="1"/>
                                     <field name="client_ref_info" readonly="1"/>
                                     <field name="payment_status" readonly="1"/>

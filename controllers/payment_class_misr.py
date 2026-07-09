@@ -129,13 +129,13 @@ class PaymentMisr():
         self.order_currency = str(order_currency)
         self.order_amount = str(price_formatted)
 
-        print("self.host_name",self.host_name)
-        print("price_formatted",price_formatted)
-        print("typeprice_formatted",type(price_formatted))
-        print("order_currency",self.order_currency)
+        # print("self.host_name",self.host_name)
+        # print("price_formatted",price_formatted)
+        # print("typeprice_formatted",type(price_formatted))
+        # print("order_currency",self.order_currency)
         origin = self.host_name.replace("http://", "https://") if self.host_name.startswith(
             "http://") else self.host_name if self.host_name.startswith("https://") else "https://" + self.host_name
-        print("origin host", origin)
+        # print("origin host", origin)
         data = {
             "targetOrigins": [
                 origin
@@ -152,13 +152,13 @@ class PaymentMisr():
         }
         }
         body_str = json.dumps(data)
-        print("body_str", body_str)
+        # print("body_str", body_str)
         url = self.url + '/uc/v1/sessions'
-        print("url", url)
+        # print("url", url)
         try:
             response = requests.post(url, headers=self.create_header(body_str,api_url), data=body_str)
             response_dict = response.content.decode()
-            print("response_dict", response_dict)
+            # print("response_dict", response_dict)
             return response_dict
         except requests.exceptions.RequestException as e:
             _logger.error('HTTPSConnection Pool Connection pool %s', e)

@@ -4,7 +4,7 @@ import sys
 from unittest import result
 import logging
 import json
-
+import time
 import base64
 
 _logger = logging.getLogger(__name__)
@@ -200,7 +200,7 @@ class PaymentRequest(http.Controller):
         if kw.get('merchantOrderId'):
             order_id = request.env['transaction'].sudo().search([('name', '=', kw.get('merchantOrderId'))],limit=1)
         elif kw.get('transient_token'):
-
+            # print("")
             decoded_data = self.extract_client_library(kw.get('transient_token'))
             _logger.info("Decoded data: %s", decoded_data)
             order_id = request.env['transaction'].sudo().search([('client_ref_info', '=', decoded_data['details']['clientReferenceInformation']['code'])], limit=1)
@@ -393,7 +393,7 @@ class PaymentRequest(http.Controller):
         payload_b64 = parts[1]
         payload_b64 += '=' * (4 - len(payload_b64) % 4)
         payload = json.loads(base64.urlsafe_b64decode(payload_b64))
-        print("payload",payload)
+        print("payload in extract_client_library",payload)
         return payload
     def redirect_home_Misr(self,base_url, account_id, order_id, link_type, company_id):
         try:
@@ -401,13 +401,29 @@ class PaymentRequest(http.Controller):
             payment = PaymentMisr(account_id.integration_username, account_id.integration_password,
                               account_id.merchant_id, order_id.name, link_type, base_url,account_id.secret_key)
             session_dict = payment.authorize(order_id.currency_id.name, order_id.amount,account_id.api_url)
-            print("session_dict",session_dict)
+            # print("session_dict",session_dict)
 
             payload = self.extract_client_library(session_dict)
-            print("payload['ctx'][0]['data']['clientReferenceInformation']['code']",payload['ctx'][0]['data']['clientReferenceInformation']['code'])
-            order_id.sudo().write({
-                "client_ref_info": payload['ctx'][0]['data']['clientReferenceInformation']['code']
-            })
+            # print("payload['ctx'][0]['data']['clientReferenceInformation']['code']",payload['ctx'][0]['data']['clientReferenceInformation']['code'])
+            session_expired_ts = int(order_id.session_expired) if order_id.session_expired else 0
+
+            needs_refresh = (
+                    not order_id.client_ref_info
+                    or not order_id.jwt_session
+                    or session_expired_ts <= int(time.time())
+            )
+
+            if needs_refresh:
+                order_id.sudo().write({
+                    "client_ref_info": payload['ctx'][0]['data']['clientReferenceInformation']['code'],
+                    "session_expired": str(payload['exp']),
+                    "jwt_session": session_dict,
+                })
+            else:
+                print("in else of redirect_home_Misr")
+                # payload = None
+                payload = self.extract_client_library(order_id.jwt_session)
+                session_dict = order_id.jwt_session
             context = {
                 # 'link_type': link_type,
                 'order_id': order_id.name,
