@@ -32,6 +32,7 @@ class account_manager(models.Model):
         ("https://atfawry.com","LIVE FAWRY"),
         ("https://pay.getpayin.com","Test AAIB"),
         ("https://apitest.cybersource.com","TEST Misr"),
+        ("https://api.cybersource.com", "LIVE Misr"),
         # ("https://pay.getpayin.com","Live AAIB")
     #     278|THdx2kpYRCLFga87RjK4rEsfhyTuTDI96mjvaXDpba113c37
     ], default='https://test-nbe.gateway.mastercard.com/api/nvp/version/65', required=False, tracking=True)
