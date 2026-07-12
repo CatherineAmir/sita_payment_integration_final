@@ -204,7 +204,7 @@
                     <div id="embed-target" class="container"> </div>
             <div class="mx-auto">
                 <input type="button" value="PAY NOW" class="btn btn-info btn-lg" onclick="Checkout.showEmbeddedPage('#embed-target'); this.style.visibility = 'hidden';" />
-                <input type="button" value="Pay with Embedded Page" onclick="Checkout.showEmbeddedPage('#embed-target');" />
+
 
             </div>show
                 </div>
