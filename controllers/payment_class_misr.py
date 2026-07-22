@@ -6,13 +6,16 @@ from requests.structures import CaseInsensitiveDict
 import urllib
 import logging
 from email.utils import formatdate
+
 _logger = logging.getLogger(__name__)
 import base64
 import hashlib
 import hmac
 import json
+
+
 class PaymentMisr():
-    def __init__(self, apiUsername, apiPassword, merchant, order_id, url, host_name,secret_key):
+    def __init__(self, apiUsername, apiPassword, merchant, order_id, url, host_name, secret_key):
         # todo
         self.apiUsername = apiUsername
         self.apiPassword = apiPassword
@@ -22,13 +25,12 @@ class PaymentMisr():
         self.host_name = host_name
         self.secret_key = secret_key
 
-    def _get_digest(self, body:str):
+    def _get_digest(self, body: str):
         body_bytes = body.encode("utf-8")
         digest = hashlib.sha256(body_bytes).digest()
         return "SHA-256=" + base64.b64encode(digest).decode("utf-8")
 
-
-    def _get_signature_retrive_data(self, date,transaction_id,host_name):
+    def _get_signature_retrive_data(self, date, transaction_id, host_name):
         path = f"/tss/v2/transactions/{transaction_id}"
         method = "Get"
         signing_string = "\n".join([
@@ -52,7 +54,7 @@ class PaymentMisr():
             f'signature="{sig_b64}"'
         )
 
-    def _get_signature(self, date, digest,host_name):
+    def _get_signature(self, date, digest, host_name):
         path = "/uc/v1/sessions"
         method = "POST"
         signing_string = "\n".join([
@@ -77,7 +79,8 @@ class PaymentMisr():
             f'headers="host v-c-date request-target digest v-c-merchant-id", '
             f'signature="{sig_b64}"'
         )
-    def create_header(self,data,api_url):
+
+    def create_header(self, data, api_url):
         # todo
         # auth_string = f"{self.apiUsername}:{self.apiPassword}"
         # auth_encoded = base64.b64encode(auth_string.encode()).decode()
@@ -89,7 +92,7 @@ class PaymentMisr():
         date = formatdate(usegmt=True)
         digest = self._get_digest(data)
         headers = CaseInsensitiveDict()
-        signature = self._get_signature(date, digest,host_name)
+        signature = self._get_signature(date, digest, host_name)
         print("signature", signature)
         print("digest", digest)
         print("date", date)
@@ -101,7 +104,7 @@ class PaymentMisr():
         headers["signature"] = signature
         return headers
 
-    def create_header_retrive_data(self,transaction_id,api_url):
+    def create_header_retrive_data(self, transaction_id, api_url):
         # todo
         # auth_string = f"{self.apiUsername}:{self.apiPassword}"
         # auth_encoded = base64.b64encode(auth_string.encode()).decode()
@@ -109,10 +112,10 @@ class PaymentMisr():
             host_name = "apitest.cybersource.com"
         else:
             # todo when go live change to host live
-            host_name = "apitest.cybersource.com"
+            host_name = "api.cybersource.com"
         date = formatdate(usegmt=True)
         headers = CaseInsensitiveDict()
-        signature = self._get_signature_retrive_data(date,transaction_id,host_name)
+        signature = self._get_signature_retrive_data(date, transaction_id, host_name)
         print("signature", signature)
         print("date", date)
 
@@ -122,8 +125,7 @@ class PaymentMisr():
         headers["signature"] = signature
         return headers
 
-
-    def authorize(self, order_currency, order_amount,api_url):
+    def authorize(self, order_currency, order_amount, api_url):
         # todo
         price_formatted = f"{order_amount:.2f}"
         self.order_currency = str(order_currency)
@@ -142,21 +144,29 @@ class PaymentMisr():
             ],
             "country": "EG",
             "locale": "ar_EG",
+            "captureMandate": {
+                "requestShipping": False,
+                "billingType": "NONE",
+            },
+            "completeMandate": {
+                "type": "CAPTURE",
+                "consumerAuthentication": "3DS",
+            },
             "data": {
-            "orderInformation": {
-                "amountDetails": {
-                    "totalAmount": self.order_amount,
-                    "currency": self.order_currency,
+                "orderInformation": {
+                    "amountDetails": {
+                        "totalAmount": self.order_amount,
+                        "currency": self.order_currency,
+                    }
                 }
             }
-        }
         }
         body_str = json.dumps(data)
         # print("body_str", body_str)
         url = self.url + '/uc/v1/sessions'
         # print("url", url)
         try:
-            response = requests.post(url, headers=self.create_header(body_str,api_url), data=body_str)
+            response = requests.post(url, headers=self.create_header(body_str, api_url), data=body_str)
             response_dict = response.content.decode()
             # print("response_dict", response_dict)
             return response_dict
@@ -164,18 +174,17 @@ class PaymentMisr():
             _logger.error('HTTPSConnection Pool Connection pool %s', e)
             return False
 
-
-    def retrieve_order(self,transaction_id,api_url):
+    def retrieve_order(self, transaction_id, api_url):
         url = self.url + f'/tss/v2/transactions/{transaction_id}'
-        print("url",url)
+        print("url", url)
         max_tries = 5
         base_delay = 2
         for attempt in range(max_tries):
             try:
-                response = requests.get(url, headers=self.create_header_retrive_data(transaction_id,api_url))
+                response = requests.get(url, headers=self.create_header_retrive_data(transaction_id, api_url))
                 response_dict = response.json()
-                print(f"retrieve order attempt {attempt+1}: {response_dict}")
-                if response_dict.get('applicationInformation',{}).get('status'):
+                print(f"retrieve order attempt {attempt + 1}: {response_dict}")
+                if response_dict.get('applicationInformation', {}).get('status'):
                     return response_dict
 
                 _logger.warning(
@@ -185,7 +194,7 @@ class PaymentMisr():
             except requests.exceptions.RequestException as e:
                 _logger.error('HTTPSConnection Pool Connection pool %s', e)
 
-            if attempt < max_tries-1:
+            if attempt < max_tries - 1:
                 time.sleep(base_delay)
                 base_delay *= 2
         _logger.error("retrieve_order failed after %s attempts for transaction %s", max_tries, transaction_id)
