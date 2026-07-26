@@ -140,7 +140,7 @@
 
             // Step 4C: Mount into container div
             const result = await checkout.mount('#payment-buttons');
-
+            console.log('Unified Checkout mounted successfully:', result);
             // Step 4D: Submit to backend
             document.getElementById('transientToken').value = result;
             document.getElementById('authForm').submit();

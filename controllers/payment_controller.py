@@ -393,6 +393,7 @@ class PaymentRequest(http.Controller):
         payload_b64 = parts[1]
         payload_b64 += '=' * (4 - len(payload_b64) % 4)
         payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+        _logger.info("payloadffffffffffff %s", payload)
         print("payload in extract_client_library",payload)
         return payload
     def redirect_home_Misr(self,base_url, account_id, order_id, link_type, company_id):

@@ -146,7 +146,7 @@ class PaymentMisr():
             "locale": "ar_EG",
             "captureMandate": {
                 "requestShipping": False,
-                "billingType": "NONE",
+                "billingType": "FULL",
             },
             "completeMandate": {
                 "type": "CAPTURE",
@@ -168,6 +168,7 @@ class PaymentMisr():
         try:
             response = requests.post(url, headers=self.create_header(body_str, api_url), data=body_str)
             response_dict = response.content.decode()
+            _logger.info("Authorize response: %s", response_dict)
             # print("response_dict", response_dict)
             return response_dict
         except requests.exceptions.RequestException as e:
@@ -183,7 +184,7 @@ class PaymentMisr():
             try:
                 response = requests.get(url, headers=self.create_header_retrive_data(transaction_id, api_url))
                 response_dict = response.json()
-                print(f"retrieve order attempt {attempt + 1}: {response_dict}")
+                _logger.info(f"retrieve order attempt {attempt + 1}: {response_dict}")
                 if response_dict.get('applicationInformation', {}).get('status'):
                     return response_dict
 
