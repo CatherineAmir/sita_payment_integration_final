@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="home_misr" name="Home Bank Misr">
+    <template id="home_misr_test" name="Home Bank Misr">
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
 
@@ -25,7 +25,6 @@
         <script t-att-src="client_library_url"
                 t-att-integrity="client_library_integrity"
                 crossorigin="anonymous"></script>
-
         <div class="container my-3">
             <t t-call="sita_payment_integration.header"/>
 
@@ -113,6 +112,7 @@
         <!-- Hidden form: submits result JWT to your backend -->
         <form id="authForm" method="post" action="/success_payment">
             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+             <input type="hidden" id="completeResponse" name="complete_response"/>
             <input type="hidden" id="transientToken" name="transient_token"/>
             <input type="hidden" name="order_id" t-att-value="order_id"/>
         </form>
@@ -122,21 +122,20 @@
     const sessionJWT = document.getElementById("sessionJWT").value;
 
     async function launchCheckout() {
-        let client;
-        let checkout;
         try {
-            // Step 4A: Initialize with session JWT
-            client = await VAS.UnifiedCheckout(sessionJWT);
+            const accept = await Accept(sessionJWT);
 
-            // Step 4B: Create checkout — EMBEDDED mode (not sidebar)
-            checkout = await client.createCheckout();
-
-            // Step 4C: Mount into container div
-            const result = await checkout.mount({ paymentSelection: '#payment-buttons', paymentScreen: '#payment-form' });
-            console.log('Unified Checkout mounted successfully:', result);
-            // Step 4D: Submit to backend
-            document.getElementById('transientToken').value = result;
-            document.getElementById('authForm').submit();
+            const unifiedPayments = await accept.unifiedPayments(false);
+            const transientToken = await unifiedPayments.show({
+                            containers: {
+                                paymentSelection: "#payment-buttons",
+                                paymentScreen: "#payment-form"
+                            }
+                        });
+            const completeResponse = await unifiedPayments.complete(transientToken);
+            document.getElementById("transientToken").value = transientToken;
+            document.getElementById("completeResponse").value = completeResponse;
+            document.getElementById("authForm").submit();
 
         } catch (error) {
             console.error('Unified Checkout error:', error);
@@ -147,10 +146,6 @@
                 errorDiv.textContent = 'Payment failed. Please try again.';
             }
             errorDiv.style.display = 'block';
-
-        } finally {
-            if (checkout) { checkout.destroy(); }
-            if (client)   { client.destroy(); }
         }
     }
 

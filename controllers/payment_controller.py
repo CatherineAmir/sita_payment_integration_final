@@ -402,7 +402,7 @@ class PaymentRequest(http.Controller):
             payment = PaymentMisr(account_id.integration_username, account_id.integration_password,
                               account_id.merchant_id, order_id.name, link_type, base_url,account_id.secret_key)
             session_dict = payment.authorize(order_id.currency_id.name, order_id.amount,account_id.api_url)
-            # print("session_dict",session_dict)
+            print("session_dict",session_dict)
 
             payload = self.extract_client_library(session_dict)
             # print("payload['ctx'][0]['data']['clientReferenceInformation']['code']",payload['ctx'][0]['data']['clientReferenceInformation']['code'])
@@ -425,6 +425,8 @@ class PaymentRequest(http.Controller):
                 # payload = None
                 payload = self.extract_client_library(order_id.jwt_session)
                 session_dict = order_id.jwt_session
+            print("payload['ctx'][0]['data']['clientLibrary']",payload['ctx'][0]['data']['clientLibrary'])
+            print("payload['ctx'][0]['data']['clientLibraryIntegrity']",payload['ctx'][0]['data']['clientLibraryIntegrity'])
             context = {
                 # 'link_type': link_type,
                 'order_id': order_id.name,

@@ -14,7 +14,7 @@ import hmac
 import json
 
 
-class PaymentMisr():
+class PaymentMisr_Test():
     def __init__(self, apiUsername, apiPassword, merchant, order_id, url, host_name, secret_key):
         # todo
         self.apiUsername = apiUsername
@@ -55,7 +55,7 @@ class PaymentMisr():
         )
 
     def _get_signature(self, date, digest, host_name):
-        path = "/uc/v1/sessions"
+        path = "/up/v1/capture-contexts"
         method = "POST"
         signing_string = "\n".join([
             f"host: {host_name}",
@@ -87,8 +87,7 @@ class PaymentMisr():
         if api_url == "https://apitest.cybersource.com":
             host_name = "apitest.cybersource.com"
         else:
-            # todo when go live change to host live
-            host_name = "apitest.cybersource.com"
+            host_name = "api.cybersource.com"
         date = formatdate(usegmt=True)
         digest = self._get_digest(data)
         headers = CaseInsensitiveDict()
@@ -137,20 +136,30 @@ class PaymentMisr():
         # print("order_currency",self.order_currency)
         origin = self.host_name.replace("http://", "https://") if self.host_name.startswith(
             "http://") else self.host_name if self.host_name.startswith("https://") else "https://" + self.host_name
-        # print("origin host", origin)
+        print("origin host", origin)
         data = {
             "targetOrigins": [
                 origin
             ],
+            "allowedPaymentTypes": [
+                "PANENTRY",
+            ],
+            "allowedCardNetworks": [
+                "MEEZA",
+                "AMEX",
+                "VISA",
+                "MASTERCARD"
+            ],
+            "clientVersion": "0.34",
+            "completeMandate": {
+                "type": "CAPTURE",
+                "consumerAuthentication": True,
+            },
             "country": "EG",
             "locale": "ar_EG",
             "captureMandate": {
+                "billingType": "FULL",
                 "requestShipping": False,
-                "billingType": "NONE",
-            },
-            "completeMandate": {
-                "type": "CAPTURE",
-                "consumerAuthentication": "3DS",
             },
             "data": {
                 "orderInformation": {
@@ -163,11 +172,12 @@ class PaymentMisr():
         }
         body_str = json.dumps(data)
         # print("body_str", body_str)
-        url = self.url + '/uc/v1/sessions'
-        # print("url", url)
+        url = self.url + '/up/v1/capture-contexts'
+        print("url", url)
         try:
             response = requests.post(url, headers=self.create_header(body_str, api_url), data=body_str)
             response_dict = response.content.decode()
+            print("response_dict", response_dict)
             _logger.info("Authorize response: %s", response_dict)
             # print("response_dict", response_dict)
             return response_dict
@@ -178,7 +188,7 @@ class PaymentMisr():
     def retrieve_order(self, transaction_id, api_url):
         url = self.url + f'/tss/v2/transactions/{transaction_id}'
         print("url", url)
-        max_tries = 5
+        max_tries = 10
         base_delay = 2
         for attempt in range(max_tries):
             try:
