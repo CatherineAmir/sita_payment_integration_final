@@ -395,13 +395,22 @@ class Transaction(models.Model):
             print("order_id.transaction_id",order_id.transaction_id)
             print("api_url",account_id.api_url)
             order_state = payment.retrieve_order(order_id.transaction_id,account_id.api_url)
-            print("order_state", order_state)
-            if not order_state or 'applicationInformation' not in order_state:
+            _logger.info(
+                "order_state %s",
+                order_state
+            )
+            if not order_state or 'applicationInformation' not in order_state or not order_state.get('applicationInformation', {}).get('status'):
                 _logger.error(
                     "Could not retrieve Misr order state for transaction %s",
                     order_id.transaction_id
                 )
-                order_id.sudo().write({'state': 'not_processed'})
+                order_id.sudo().write({'state': 'not_processed',
+                                       'response_update': order_state,
+                                       })
+                _logger.error(
+                    "response_update5555555555555555555 %s",
+                    order_id.response_update
+                )
                 return True
             # print("order_state['applicationInformation']['status']",order_state['applicationInformation']['status'])
             if order_state['applicationInformation']['status'] in ['PENDING','TRANSMITTED']:

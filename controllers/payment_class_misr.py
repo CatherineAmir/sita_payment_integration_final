@@ -180,6 +180,7 @@ class PaymentMisr():
         print("url", url)
         max_tries = 5
         base_delay = 2
+        response_dict_error = None
         for attempt in range(max_tries):
             try:
                 response = requests.get(url, headers=self.create_header_retrive_data(transaction_id, api_url))
@@ -187,6 +188,10 @@ class PaymentMisr():
                 _logger.info(f"retrieve order attempt {attempt + 1}: {response_dict}")
                 if response_dict.get('applicationInformation', {}).get('status'):
                     return response_dict
+                else:
+                    response_dict_error = response_dict
+
+
 
                 _logger.warning(
                     "Order %s not ready on attempt %s/%s — retrying in %ss",
@@ -198,6 +203,7 @@ class PaymentMisr():
             if attempt < max_tries - 1:
                 time.sleep(base_delay)
                 base_delay *= 2
+        return response_dict_error
         _logger.error("retrieve_order failed after %s attempts for transaction %s", max_tries, transaction_id)
         return None
 
